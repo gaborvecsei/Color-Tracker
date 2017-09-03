@@ -67,22 +67,11 @@ class ColorTracker(object):
                 if y < self.__alert_y:
                     self.__alerted = False
 
-    def __alert_when_too_close(self, contour, alert_area, alert_callback_function):
-        object_contour_area = cv2.contourArea(contour)
-        if object_contour_area >= alert_area:
-            if not self.__alerted:
-                self.__alerted = True
-                if alert_callback_function is not None:
-                    alert_callback_function()
-        else:
-            self.__alerted = False
+    def get_tracker_points(self):
+        return self.__tracker_points
 
     def __find_and_track_object_center_point(self, contours, min_contour_area,
                                              min_point_distance, max_point_distance=math.inf):
-        """
-        If there was a detection it returns with True
-        """
-
         if len(contours) > 0:
             c = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(c)
