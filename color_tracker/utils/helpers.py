@@ -1,5 +1,5 @@
-import numpy as np
 import cv2
+import numpy as np
 
 
 def calculate_distance(pt1, pt2):
@@ -31,10 +31,35 @@ def get_image_channel(image):
 def overrides(interface_class):
     def overrider(method):
         if method.__name__ in dir(interface_class):
-
             pass
         else:
             raise Exception("Function <{0}> not found in Parent Class".format(method.__name__))
         return method
 
     return overrider
+
+
+def resize_img(image, min_width, min_height):
+    if len(image.shape) == 3:
+        h, w, c = image.shape
+    elif len(image.shape) == 2:
+        h, w = image.shape
+        c = 1
+    else:
+        raise Exception("Something is wrong with the image dimensions")
+
+    new_w = w
+    new_h = h
+
+    if w > min_width:
+        new_w = min_width
+        new_h = int(h * (float(new_w) / w))
+
+    h, w, c = (new_h, new_w, c)
+    if h > min_height:
+        new_h = min_height
+        new_w = int(w * (float(new_h) / h))
+
+    resized = cv2.resize(image, (new_w, new_h))
+
+    return resized

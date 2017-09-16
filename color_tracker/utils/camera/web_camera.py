@@ -1,18 +1,17 @@
 import cv2
-
-from utils.camera.Camera import Camera
-from utils.utils import overrides
+from color_tracker.utils.camera.camera import Camera
+from color_tracker.utils.helpers import overrides
 
 
 class WebCamera(Camera):
     def __init__(self, video_src=0):
         super().__init__()
-        self.__video_src = video_src
+        self._video_src = video_src
 
     @overrides(Camera)
     def _init_camera(self):
         super()._init_camera()
-        self._cam = cv2.VideoCapture(self.__video_src)
+        self._cam = cv2.VideoCapture(self._video_src)
         self._ret, self._frame = self._cam.read()
         return self._ret
 

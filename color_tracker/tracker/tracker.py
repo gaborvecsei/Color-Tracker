@@ -4,7 +4,7 @@ from types import FunctionType
 
 import cv2
 
-from utils import utils
+from color_tracker.utils import helpers
 
 
 class ColorTracker(object):
@@ -87,7 +87,7 @@ class ColorTracker(object):
                     self.__alert_when_crossed_line(object_center=center)
 
                 try:
-                    dst = utils.calculate_distance(self.__tracker_points[-1], center)
+                    dst = helpers.calculate_distance(self.__tracker_points[-1], center)
                     if max_point_distance > dst > min_point_distance:
                         self.__tracker_points.append(center)
                 except IndexError as e:
@@ -148,7 +148,7 @@ class ColorTracker(object):
                 continue
 
             if (self.__selection_points is not None) and (self.__selection_points != []):
-                self.frame = utils.crop_out_polygon_convex(self.frame, self.__selection_points)
+                self.frame = helpers.crop_out_polygon_convex(self.frame, self.__selection_points)
 
             img = self.frame.copy()
             debug_frame = self.frame.copy()

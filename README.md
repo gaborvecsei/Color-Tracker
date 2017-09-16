@@ -1,15 +1,15 @@
 # Color Tracker
 
-Simple color tracking with OpenCV 3.
+Color tracking module with OpenCV 3.
 
 It also has an "alert callback function" when the object crosses a line. You can set this line with `alert_y` and
 the callback function with `alert_callback_function`.
 
 ## Sample
 
-TODO: sample image
+TODO: sample gif
 
-## Setup
+## Setup & install
 
 You will need:
 
@@ -17,9 +17,9 @@ You will need:
 - OpenCV 3
 - Numpy
 
-## Run
+Install:
 
-`python app.py`
+`python setup.py install`
 
 ## Basic Usage
 
@@ -28,43 +28,26 @@ There are 2 callbacks:
 - *tracking callback*: called at every frame
 - *alert callback*: called only when it crossed the "alert line"
 
+You can find sample scripts at the `Examples` folder
+
+## Color Range Detection
+
+Just run this little script and you can get the necessary information for the color detection.
+
+(You can find this also in the `Examples` folder)
+
 ```python
-import cv2
+import color_tracker
 
-from color_tracker import ColorTracker
-from utils import WebCamera
+cam = color_tracker.WebCamera(video_src=0)
+cam.start_camera()
 
+detector = color_tracker.HSVColorRangeDetector(camera=cam)
+lower, upper, kernel = detector.detect()
 
-def tracking_callback(frame, debug_frame, object_center):
-    cv2.imshow("original frame", frame)
-    cv2.imshow("debug frame", debug_frame)
-    key = cv2.waitKey(1)
-    if key == 27:
-        tracker.stop_tracking()
-    print("Object center: {0}".format(object_center))
-
-
-def alert_callback():
-    print("Crossed the line!")
-
-
-if __name__ == "__main__":
-    webcam = WebCamera(video_src=0)
-    webcam.start_camera()
-
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
-
-    tracker = ColorTracker(camera=webcam, max_nb_of_points=20, debug=True)
-
-    tracker.set_tracking_callback(tracking_callback=tracking_callback)
-    tracker.set_alert_callback(350, alert_callback)
-
-    tracker.track(hsv_lower_value=(0, 100, 100),
-                  hsv_upper_value=(10, 255, 255),
-                  min_contour_area=1000,
-                  kernel=kernel)
-
-    webcam.release_camera()
+print("Lower HSV color is: {0}".format(lower))
+print("Upper HSV color is: {0}".format(upper))
+print("Kernel is: {0}".format(kernel))
 ```
 
 ## About

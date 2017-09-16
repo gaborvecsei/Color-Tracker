@@ -1,7 +1,6 @@
 import cv2
 
-from color_tracker import ColorTracker
-from utils import WebCamera
+import color_tracker
 
 
 def tracking_callback(frame, debug_frame, object_center):
@@ -18,12 +17,12 @@ def alert_callback():
 
 
 if __name__ == "__main__":
-    webcam = WebCamera(video_src=0)
+    webcam = color_tracker.WebCamera(video_src=0)
     webcam.start_camera()
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
 
-    tracker = ColorTracker(camera=webcam, max_nb_of_points=20, debug=True)
+    tracker = color_tracker.ColorTracker(camera=webcam, max_nb_of_points=20, debug=True)
 
     tracker.set_tracking_callback(tracking_callback=tracking_callback)
     tracker.set_alert_callback(350, alert_callback)
