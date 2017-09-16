@@ -19,7 +19,7 @@ You will need:
 
 Install:
 
-`python setup.py install`
+`python setup.py install` OR `pip install git+https://github.com/gaborvecsei/Color-Tracker.git`
 
 ## Basic Usage
 
