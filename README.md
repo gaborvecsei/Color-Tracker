@@ -23,6 +23,12 @@ Install:
 
 ## Basic Usage
 
+```shell
+>>> import color_tracker
+>>> color_tracker.__version__
+'0.1.0'
+```
+
 There are 2 callbacks:
 
 - *tracking callback*: called at every frame
