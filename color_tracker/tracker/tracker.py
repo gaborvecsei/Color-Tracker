@@ -10,51 +10,51 @@ from color_tracker.utils import helpers
 class ColorTracker(object):
     def __init__(self, camera, max_nb_of_points=None, court_points=None, debug=True):
         super().__init__()
-        self.__camera = camera
-        self.__tracker_points = None
-        self.__debug = debug
-        self.__max_nb_of_points = max_nb_of_points
-        self.__selection_points = court_points
-        self.__alerted = False
-        self.__alert_y = None
-        self.__alert_callback_function = None
-        self.__tracking_callback = None
-        self.__last_detected_contour = None
-        self.__last_detected_object_center = None
-        self.__is_running = False
+        self._camera = camera
+        self._tracker_points = None
+        self._debug = debug
+        self._max_nb_of_points = max_nb_of_points
+        self._selection_points = court_points
+        self._alerted = False
+        self._alert_y = None
+        self._alert_callback_function = None
+        self._tracking_callback = None
+        self._last_detected_contour = None
+        self._last_detected_object_center = None
+        self._is_running = False
 
-        self.__create_tracker_points_list()
+        self._create_tracker_points_list()
 
     def set_alert_callback(self, alert_y, alert_callback_function):
         if not isinstance(alert_callback_function, FunctionType):
             raise Exception("alert_callback_function is not a valid Function with type: FunctionType!")
-        self.__alert_y = alert_y
-        self.__alert_callback_function = alert_callback_function
+        self._alert_y = alert_y
+        self._alert_callback_function = alert_callback_function
 
     def set_tracking_callback(self, tracking_callback):
         if not isinstance(tracking_callback, FunctionType):
             raise Exception("tracking_callback is not a valid Function with type: FunctionType!")
-        self.__tracking_callback = tracking_callback
+        self._tracking_callback = tracking_callback
 
-    def __create_tracker_points_list(self):
-        if self.__max_nb_of_points:
-            self.__tracker_points = deque(maxlen=self.__max_nb_of_points)
+    def _create_tracker_points_list(self):
+        if self._max_nb_of_points:
+            self._tracker_points = deque(maxlen=self._max_nb_of_points)
         else:
-            self.__tracker_points = deque()
+            self._tracker_points = deque()
 
-    def __alert_when_crossed_line(self, object_center):
+    def _alert_when_crossed_line(self, object_center):
         x, y = object_center
         try:
-            prev_point_x, prev_point_y = self.__tracker_points[-1]
+            prev_point_x, prev_point_y = self._tracker_points[-1]
         except IndexError as e:
             return
 
-        if prev_point_y < self.__alert_y:
-            if not self.__alerted:
-                if y >= self.__alert_y:
-                    self.__alerted = True
+        if prev_point_y < self._alert_y:
+            if not self._alerted:
+                if y >= self._alert_y:
+                    self._alerted = True
                     try:
-                        self.__alert_callback_function()
+                        self._alert_callback_function()
                     except TypeError as e:
                         print("""
                                 [*] alert callback function has 0 args
@@ -64,14 +64,14 @@ class ColorTracker(object):
                                 """)
                         raise e
             else:
-                if y < self.__alert_y:
-                    self.__alerted = False
+                if y < self._alert_y:
+                    self._alerted = False
 
     def get_tracker_points(self):
-        return self.__tracker_points
+        return self._tracker_points
 
-    def __find_and_track_object_center_point(self, contours, min_contour_area,
-                                             min_point_distance, max_point_distance=math.inf):
+    def _find_and_track_object_center_point(self, contours, min_contour_area,
+                                            min_point_distance, max_point_distance=math.inf):
         if len(contours) > 0:
             c = max(contours, key=cv2.contourArea)
             area = cv2.contourArea(c)
@@ -80,94 +80,94 @@ class ColorTracker(object):
                 M = cv2.moments(c)
                 center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
 
-                self.__last_detected_contour = c
-                self.__last_detected_object_center = center
+                self._last_detected_contour = c
+                self._last_detected_object_center = center
 
-                if self.__alert_y is not None and self.__alert_callback_function is not None:
-                    self.__alert_when_crossed_line(object_center=center)
+                if self._alert_y is not None and self._alert_callback_function is not None:
+                    self._alert_when_crossed_line(object_center=center)
 
                 try:
-                    dst = helpers.calculate_distance(self.__tracker_points[-1], center)
+                    dst = helpers.calculate_distance(self._tracker_points[-1], center)
                     if max_point_distance > dst > min_point_distance:
-                        self.__tracker_points.append(center)
+                        self._tracker_points.append(center)
                 except IndexError as e:
                     # It happens only when the queue is empty and we need a starting point
-                    self.__tracker_points.append(center)
+                    self._tracker_points.append(center)
 
                 return True
             else:
-                self.__last_detected_contour = None
-                self.__last_detected_object_center = None
+                self._last_detected_contour = None
+                self._last_detected_object_center = None
         return False
 
-    def __draw_debug_things(self, debug_image):
-        self.__draw_tracker_points(debug_image)
+    def _draw_debug_things(self, debug_image):
+        self._draw_tracker_points(debug_image)
 
-        if self.__alert_y is not None:
+        if self._alert_y is not None:
             h, w, c = debug_image.shape
-            cv2.line(debug_image, (0, self.__alert_y), (w, self.__alert_y), (255, 0, 0), 1)
+            cv2.line(debug_image, (0, self._alert_y), (w, self._alert_y), (255, 0, 0), 1)
 
-        if self.__last_detected_contour is not None:
-            cv2.drawContours(debug_image, [self.__last_detected_contour], -1, (0, 255, 0), cv2.FILLED)
-        if self.__last_detected_object_center is not None:
-            cv2.circle(debug_image, self.__last_detected_object_center, 3, (0, 0, 255), -1)
+        if self._last_detected_contour is not None:
+            cv2.drawContours(debug_image, [self._last_detected_contour], -1, (0, 255, 0), cv2.FILLED)
+        if self._last_detected_object_center is not None:
+            cv2.circle(debug_image, self._last_detected_object_center, 3, (0, 0, 255), -1)
 
     def clear_track_points(self):
-        if len(self.__tracker_points) > 0:
-            self.__create_tracker_points_list()
+        if len(self._tracker_points) > 0:
+            self._create_tracker_points_list()
 
-    def __draw_tracker_points(self, debug_image):
+    def _draw_tracker_points(self, debug_image):
         if debug_image is not None:
-            for i in range(1, len(self.__tracker_points)):
-                if self.__tracker_points[i - 1] is None or self.__tracker_points[i] is None:
+            for i in range(1, len(self._tracker_points)):
+                if self._tracker_points[i - 1] is None or self._tracker_points[i] is None:
                     continue
                 rectangle_offset = 4
-                rectangle_pt1 = tuple(x - rectangle_offset for x in self.__tracker_points[i])
-                rectangle_pt2 = tuple(x + rectangle_offset for x in self.__tracker_points[i])
+                rectangle_pt1 = tuple(x - rectangle_offset for x in self._tracker_points[i])
+                rectangle_pt2 = tuple(x + rectangle_offset for x in self._tracker_points[i])
                 cv2.rectangle(debug_image, rectangle_pt1, rectangle_pt2, (255, 255, 255), 1)
-                cv2.line(debug_image, self.__tracker_points[i - 1], self.__tracker_points[i], (255, 255, 255), 1)
+                cv2.line(debug_image, self._tracker_points[i - 1], self._tracker_points[i], (255, 255, 255), 1)
 
-    def __find_object_contours(self, image, hsv_lower_value, hsv_upper_value, kernel):
+    def _find_object_contours(self, image, hsv_lower_value, hsv_upper_value, kernel):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, hsv_lower_value, hsv_upper_value)
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
         return cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
     def stop_tracking(self):
-        self.__is_running = False
+        self._is_running = False
 
     def track(self, hsv_lower_value, hsv_upper_value, kernel, min_contour_area, min_track_point_distance=20):
-        self.__is_running = True
+        self._is_running = True
 
         while True:
-            ret, self.frame = self.__camera.read()
+            ret, self.frame = self._camera.read()
 
             if ret:
                 self.frame = cv2.flip(self.frame, 1)
             else:
                 continue
 
-            if (self.__selection_points is not None) and (self.__selection_points != []):
-                self.frame = helpers.crop_out_polygon_convex(self.frame, self.__selection_points)
+            if (self._selection_points is not None) and (self._selection_points != []):
+                self.frame = helpers.crop_out_polygon_convex(self.frame, self._selection_points)
 
             img = self.frame.copy()
             debug_frame = self.frame.copy()
 
-            cnts = self.__find_object_contours(img,
-                                               hsv_lower_value=hsv_lower_value,
-                                               hsv_upper_value=hsv_upper_value,
-                                               kernel=kernel)
+            cnts = self._find_object_contours(img,
+                                              hsv_lower_value=hsv_lower_value,
+                                              hsv_upper_value=hsv_upper_value,
+                                              kernel=kernel)
 
-            self.__find_and_track_object_center_point(contours=cnts,
-                                                      min_contour_area=min_contour_area,
-                                                      min_point_distance=min_track_point_distance)
+            self._find_and_track_object_center_point(contours=cnts,
+                                                     min_contour_area=min_contour_area,
+                                                     min_point_distance=min_track_point_distance)
 
-            if self.__debug:
-                self.__draw_debug_things(debug_frame)
+            if self._debug:
+                self._draw_debug_things(debug_frame)
 
-            if self.__tracking_callback is not None:
+            if self._tracking_callback is not None:
                 try:
-                    self.__tracking_callback(self.frame, debug_frame, self.__last_detected_object_center)
+                    self._tracking_callback(self.frame, debug_frame, self._last_detected_object_center)
                 except TypeError as e:
                     print("""
                         [*] tracker callback function has 3 args: (original_frame, debug_frame, object_center)
@@ -177,5 +177,5 @@ class ColorTracker(object):
                         """)
                     raise e
 
-            if not self.__is_running:
+            if not self._is_running:
                 break
