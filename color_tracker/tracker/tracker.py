@@ -100,17 +100,22 @@ class ColorTracker(object):
                 self._last_detected_object_center = None
         return False
 
-    def _draw_debug_things(self, debug_image):
-        self._draw_tracker_points(debug_image)
+    def _draw_debug_things(self, debug_image, draw_tracker_points=True, draw_alert_line=True, draw_contour=True,
+                           draw_object_center=True):
+        if draw_tracker_points:
+            self._draw_tracker_points(debug_image)
 
-        if self._alert_y is not None:
-            h, w, c = debug_image.shape
-            cv2.line(debug_image, (0, self._alert_y), (w, self._alert_y), (255, 0, 0), 1)
+        if draw_alert_line:
+            if self._alert_y is not None:
+                h, w, c = debug_image.shape
+                cv2.line(debug_image, (0, self._alert_y), (w, self._alert_y), (255, 0, 0), 1)
 
-        if self._last_detected_contour is not None:
-            cv2.drawContours(debug_image, [self._last_detected_contour], -1, (0, 255, 0), cv2.FILLED)
-        if self._last_detected_object_center is not None:
-            cv2.circle(debug_image, self._last_detected_object_center, 3, (0, 0, 255), -1)
+        if draw_contour:
+            if self._last_detected_contour is not None:
+                cv2.drawContours(debug_image, [self._last_detected_contour], -1, (0, 255, 0), cv2.FILLED)
+        if draw_object_center:
+            if self._last_detected_object_center is not None:
+                cv2.circle(debug_image, self._last_detected_object_center, 3, (0, 0, 255), -1)
 
     def clear_track_points(self):
         if len(self._tracker_points) > 0:
@@ -163,7 +168,7 @@ class ColorTracker(object):
                                                      min_point_distance=min_track_point_distance)
 
             if self._debug:
-                self._draw_debug_things(debug_frame)
+                self._draw_debug_things(debug_frame, draw_contour=False)
 
             if self._tracking_callback is not None:
                 try:

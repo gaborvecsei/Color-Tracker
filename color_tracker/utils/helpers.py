@@ -3,20 +3,34 @@ import numpy as np
 
 
 def calculate_distance(pt1, pt2):
+    """
+    Calculate the distance between two points
+    :param pt1: tuple , 2D point
+    :param pt2:  tuple, 2D point
+    :return: distance between given points
+    """
+
     x1, y1 = pt1
     x2, y2 = pt2
     return np.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
 
-def crop_out_polygon_convex(rgb_image, point_array):
+def crop_out_polygon_convex(image, point_array):
+    """
+    Crops out a convex polygon given from a list of points from an image
+    :param image: Opencv BGR image
+    :param point_array: list of points that defines a convex polygon
+    :return: Cropped out image
+    """
+
     point_array = np.array(point_array)
     point_array = np.reshape(cv2.convexHull(point_array), point_array.shape)
-    mask = np.zeros(rgb_image.shape, dtype=np.uint8)
+    mask = np.zeros(image.shape, dtype=np.uint8)
     roi_corners = np.array([point_array], dtype=np.int32)
-    channel_count = get_image_channel(rgb_image)
+    channel_count = get_image_channel(image)
     ignore_mask_color = (255,) * channel_count
     cv2.fillConvexPoly(mask, roi_corners, ignore_mask_color)
-    masked_image = cv2.bitwise_and(rgb_image, mask)
+    masked_image = cv2.bitwise_and(image, mask)
     return masked_image
 
 
