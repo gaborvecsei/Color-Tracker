@@ -102,20 +102,18 @@ class ColorTracker(object):
 
     def _draw_debug_things(self, debug_image, draw_tracker_points=True, draw_alert_line=True, draw_contour=True,
                            draw_object_center=True):
-        if draw_tracker_points:
-            self._draw_tracker_points(debug_image)
-
-        if draw_alert_line:
-            if self._alert_y is not None:
-                h, w, c = debug_image.shape
-                cv2.line(debug_image, (0, self._alert_y), (w, self._alert_y), (255, 0, 0), 1)
-
         if draw_contour:
             if self._last_detected_contour is not None:
                 cv2.drawContours(debug_image, [self._last_detected_contour], -1, (0, 255, 0), cv2.FILLED)
         if draw_object_center:
             if self._last_detected_object_center is not None:
                 cv2.circle(debug_image, self._last_detected_object_center, 3, (0, 0, 255), -1)
+        if draw_alert_line:
+            if self._alert_y is not None:
+                h, w, c = debug_image.shape
+                cv2.line(debug_image, (0, self._alert_y), (w, self._alert_y), (255, 0, 0), 1)
+        if draw_tracker_points:
+            self._draw_tracker_points(debug_image)
 
     def clear_track_points(self):
         if len(self._tracker_points) > 0:
@@ -135,13 +133,14 @@ class ColorTracker(object):
     def _find_object_contours(self, image, hsv_lower_value, hsv_upper_value, kernel):
         hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
         mask = cv2.inRange(hsv, hsv_lower_value, hsv_upper_value)
-        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
+        if kernel is not None:
+            mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
         return cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
     def stop_tracking(self):
         self._is_running = False
 
-    def track(self, hsv_lower_value, hsv_upper_value, kernel, min_contour_area, min_track_point_distance=20):
+    def track(self, hsv_lower_value, hsv_upper_value, min_contour_area, kernel=None, min_track_point_distance=20):
         self._is_running = True
 
         while True:
