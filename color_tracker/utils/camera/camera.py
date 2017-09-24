@@ -7,6 +7,8 @@ class Camera(object):
     def __init__(self):
         self._cam = None
         self._frame = None
+        self._frame_width = None
+        self._frame_height = None
         self._ret = False
 
         self.auto_undistortion = False
@@ -33,6 +35,9 @@ class Camera(object):
                 self._ret, self._frame = self._read_from_camera()
             else:
                 break
+
+    def get_frame_width_and_height(self):
+        return self._frame_width, self._frame_height
 
     def read(self):
         return self._ret, self._frame
