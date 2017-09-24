@@ -5,6 +5,10 @@ from color_tracker.utils import helpers
 
 
 class HSVColorRangeDetector:
+    """
+    Just a helper to determine what kind of lower and upper HSV values you need for the tracking
+    """
+
     def __init__(self, camera):
         assert isinstance(camera, Camera), "camera parameter is not a Camera object!"
         assert camera.is_running(), "camera is not running"

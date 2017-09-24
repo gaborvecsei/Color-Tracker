@@ -4,7 +4,15 @@ from color_tracker.utils.helpers import overrides
 
 
 class WebCamera(Camera):
+    """
+    Simple Webcamera
+    """
+
     def __init__(self, video_src=0):
+        """
+        :param video_src (int): camera source code (it should be 0 or 1)
+        """
+
         super().__init__()
         self._video_src = video_src
 

@@ -43,6 +43,11 @@ def get_image_channel(image):
 
 
 def overrides(interface_class):
+    """
+    Decorator to mark overrides in a class
+    :param interface_class: parent of the class
+    """
+
     def overrider(method):
         if method.__name__ in dir(interface_class):
             pass
@@ -54,6 +59,14 @@ def overrides(interface_class):
 
 
 def resize_img(image, min_width, min_height):
+    """
+    Resize the image with keeping the aspect ratio.
+    min_width and min_height defines a bounding box
+    :param image:
+    :param min_width:
+    :param min_height:
+    :return: resized image
+    """
     if len(image.shape) == 3:
         h, w, c = image.shape
     elif len(image.shape) == 2:

@@ -8,13 +8,20 @@ from color_tracker.utils import helpers
 
 
 class ColorTracker(object):
-    def __init__(self, camera, max_nb_of_points=None, court_points=None, debug=True):
+    def __init__(self, camera, max_nb_of_points=None, debug=True):
+        """
+        :param camera: Camera object which parent is a Camera object (like WebCamera)
+        :param max_nb_of_points: Maxmimum number of points for storing. If it is set
+        to None than it means there is no limit
+        :param debug: When it's true than we can see the visualization of the captured points etc...
+        """
+
         super().__init__()
         self._camera = camera
         self._tracker_points = None
         self._debug = debug
         self._max_nb_of_points = max_nb_of_points
-        self._selection_points = court_points
+        self._selection_points = None
         self._alerted = False
         self._alert_y = None
         self._alert_callback_function = None
@@ -24,6 +31,15 @@ class ColorTracker(object):
         self._is_running = False
 
         self._create_tracker_points_list()
+
+    def set_court_points(self, court_points):
+        """
+        Set a set of points that crops out a convex polygon from the image.
+        So only on the cropped part will be detection
+        :param court_points (list): list of points
+        """
+
+        self._selection_points = court_points
 
     def set_alert_callback(self, alert_y, alert_callback_function):
         if not isinstance(alert_callback_function, FunctionType):
@@ -37,6 +53,10 @@ class ColorTracker(object):
         self._tracking_callback = tracking_callback
 
     def _create_tracker_points_list(self):
+        """
+        Initialize the tracker point list
+        """
+
         if self._max_nb_of_points:
             self._tracker_points = deque(maxlen=self._max_nb_of_points)
         else:
@@ -68,6 +88,9 @@ class ColorTracker(object):
                     self._alerted = False
 
     def get_tracker_points(self):
+        """
+        :return (list): Returns the tracker points what were captured
+        """
         return self._tracker_points
 
     def _find_and_track_object_center_point(self, contours, min_contour_area,
@@ -116,6 +139,10 @@ class ColorTracker(object):
             self._draw_tracker_points(debug_image)
 
     def clear_track_points(self):
+        """
+        Delete all tracker points
+        """
+
         if len(self._tracker_points) > 0:
             self._create_tracker_points_list()
 
@@ -138,9 +165,22 @@ class ColorTracker(object):
         return cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
 
     def stop_tracking(self):
+        """
+        Stop the color tracking
+        """
+
         self._is_running = False
 
     def track(self, hsv_lower_value, hsv_upper_value, min_contour_area, kernel=None, min_track_point_distance=20):
+        """
+        With this we can start the tracking with the given parameters
+        :param hsv_lower_value: lowest acceptable hsv values
+        :param hsv_upper_value: highest acceptable hsv values
+        :param min_contour_area: minimum contour area for the detection. Below that the detection does not count
+        :param kernel: structuring element to perform morphological operations on the mask image
+        :param min_track_point_distance: minimum distance between the tracked and recognized points
+        """
+
         self._is_running = True
 
         while True:
