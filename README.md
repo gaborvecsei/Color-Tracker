@@ -7,7 +7,7 @@ the callback function with `alert_callback_function`.
 
 ## Sample
 
-TODO: sample gif
+![yellow cruiser sample gif](https://github.com/gaborvecsei/Color-Tracker/blob/master/Examples/yellow_cruiser.gif)
 
 ## Setup & install
 
