@@ -21,6 +21,8 @@ class WebCamera(Camera):
         super()._init_camera()
         self._cam = cv2.VideoCapture(self._video_src)
         self._ret, self._frame = self._cam.read()
+        if not self._ret:
+            raise Exception("No camera feed")
         self._frame_height, self._frame_width, c = self._frame.shape
         return self._ret
 
