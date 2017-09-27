@@ -29,6 +29,7 @@ class ColorTracker(object):
         self._last_detected_contour = None
         self._last_detected_object_center = None
         self._is_running = False
+        self._frame = None
 
         self._create_tracker_points_list()
 
@@ -184,18 +185,18 @@ class ColorTracker(object):
         self._is_running = True
 
         while True:
-            ret, self.frame = self._camera.read()
+            ret, self._frame = self._camera.read()
 
             if ret:
-                self.frame = cv2.flip(self.frame, 1)
+                self._frame = cv2.flip(self._frame, 1)
             else:
                 continue
 
             if (self._selection_points is not None) and (self._selection_points != []):
-                self.frame = helpers.crop_out_polygon_convex(self.frame, self._selection_points)
+                self._frame = helpers.crop_out_polygon_convex(self._frame, self._selection_points)
 
-            img = self.frame.copy()
-            debug_frame = self.frame.copy()
+            img = self._frame.copy()
+            debug_frame = self._frame.copy()
 
             cnts = self._find_object_contours(img,
                                               hsv_lower_value=hsv_lower_value,
@@ -211,7 +212,7 @@ class ColorTracker(object):
 
             if self._tracking_callback is not None:
                 try:
-                    self._tracking_callback(self.frame, debug_frame, self._last_detected_object_center)
+                    self._tracking_callback(self._frame, debug_frame, self._last_detected_object_center)
                 except TypeError as e:
                     print("""
                         [*] tracker callback function has 3 args: (original_frame, debug_frame, object_center)
