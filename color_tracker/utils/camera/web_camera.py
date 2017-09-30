@@ -1,6 +1,5 @@
 import cv2
 from color_tracker.utils.camera.camera import Camera
-from color_tracker.utils.helpers import overrides
 
 
 class WebCamera(Camera):
@@ -16,7 +15,6 @@ class WebCamera(Camera):
         super().__init__()
         self._video_src = video_src
 
-    @overrides(Camera)
     def _init_camera(self):
         super()._init_camera()
         self._cam = cv2.VideoCapture(self._video_src)
@@ -26,7 +24,6 @@ class WebCamera(Camera):
         self._frame_height, self._frame_width, c = self._frame.shape
         return self._ret
 
-    @overrides(Camera)
     def _read_from_camera(self):
         super()._read_from_camera()
         self._ret, self._frame = self._cam.read()
@@ -37,7 +34,6 @@ class WebCamera(Camera):
         else:
             return False, None
 
-    @overrides(Camera)
     def release_camera(self):
         super().release_camera()
         self._cam.release()

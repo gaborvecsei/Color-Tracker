@@ -42,22 +42,6 @@ def get_image_channel(image):
     return c
 
 
-def overrides(interface_class):
-    """
-    Decorator to mark overrides in a class
-    :param interface_class: parent of the class
-    """
-
-    def overrider(method):
-        if method.__name__ in dir(interface_class):
-            pass
-        else:
-            raise Exception("Function <{0}> not found in Parent Class".format(method.__name__))
-        return method
-
-    return overrider
-
-
 def resize_img(image, min_width, min_height):
     """
     Resize the image with keeping the aspect ratio.
