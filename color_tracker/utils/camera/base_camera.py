@@ -15,7 +15,7 @@ class Camera(object):
         self._frame_height = None
         self._ret = False
 
-        self.auto_undistortion = False
+        self._auto_undistortion = False
         self._camera_matrix = None
         self._distortion_coefficients = None
 
@@ -89,10 +89,10 @@ class Camera(object):
         self._distortion_coefficients = distortion_coefficients
 
     def activate_auto_undistortion(self):
-        self.auto_undistortion = True
+        self._auto_undistortion = True
 
     def deactivate_auto_undistortion(self):
-        self.auto_undistortion = False
+        self._auto_undistortion = False
 
     def _undistort_image(self, image):
         if self._camera_matrix is None or self._distortion_coefficients is None:

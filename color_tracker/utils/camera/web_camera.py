@@ -1,5 +1,5 @@
 import cv2
-from color_tracker.utils.camera.camera import Camera
+from color_tracker.utils.camera.base_camera import Camera
 
 
 class WebCamera(Camera):
@@ -28,7 +28,7 @@ class WebCamera(Camera):
         super()._read_from_camera()
         self._ret, self._frame = self._cam.read()
         if self._ret:
-            if self.auto_undistortion:
+            if self._auto_undistortion:
                 self._frame = self._undistort_image(self._frame)
             return True, self._frame
         else:
