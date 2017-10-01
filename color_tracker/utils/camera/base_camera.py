@@ -72,7 +72,12 @@ class Camera(object):
         With this you can grab the last frame from the camera
         :return (boolean, np.array): return value and frame
         """
-        return self._ret, self._frame
+        if self._is_running:
+            return self._ret, self._frame
+        else:
+            import warnings
+            warnings.warn("Camera is not started, you should start it with start_camera()")
+            return False, None
 
     def release_camera(self):
         """
