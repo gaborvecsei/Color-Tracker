@@ -74,3 +74,40 @@ def resize_img(image, min_width, min_height):
     resized = cv2.resize(image, (new_w, new_h))
 
     return resized
+
+
+def get_largest_contour(contours, min_contour_area):
+    """
+    Find the largest contour in a set of detected contours
+    :param contours: detected contours
+    :param min_contour_area: only above this threshold it counts as a valid contour
+    :return: contour
+    """
+
+    if len(contours) > 0:
+        c = max(contours, key=cv2.contourArea)
+        area = cv2.contourArea(c)
+        if area >= min_contour_area:
+            return c
+    return None
+
+
+def get_contour_center(contour):
+    """
+    Calculate the center of the contour
+    :param contour: Contour detected with find_contours
+    :return: object center as tuple
+    """
+
+    # ((x, y), radius) = cv2.minEnclosingCircle(c)
+    M = cv2.moments(contour)
+    center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
+    return center
+
+
+def find_object_contours(image, hsv_lower_value, hsv_upper_value, kernel):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsv, hsv_lower_value, hsv_upper_value)
+    if kernel is not None:
+        mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
+    return cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]

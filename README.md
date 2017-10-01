@@ -41,7 +41,12 @@ import cv2
 import color_tracker
 
 
-def tracking_callback(frame, debug_frame, object_center):
+def tracking_callback():
+    frame = tracker.get_frame()
+    debug_frame = tracker.get_debug_image()
+    object_center = tracker.get_last_object_center()
+
+    cv2.imshow("original frame", frame)
     cv2.imshow("debug frame", debug_frame)
     key = cv2.waitKey(1)
     if key == 27:
