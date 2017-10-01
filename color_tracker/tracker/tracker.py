@@ -22,9 +22,6 @@ class ColorTracker(object):
         self._debug = debug
         self._max_nb_of_points = max_nb_of_points
         self._selection_points = None
-        self._alerted = False
-        self._alert_y = None
-        self._alert_callback_function = None
         self._tracking_callback = None
         self._last_detected_object_contour = None
         self._last_detected_object_center = None
@@ -43,12 +40,6 @@ class ColorTracker(object):
 
         self._selection_points = court_points
 
-    def set_alert_callback(self, alert_y, alert_callback_function):
-        if not isinstance(alert_callback_function, FunctionType):
-            raise Exception("alert_callback_function is not a valid Function with type: FunctionType!")
-        self._alert_y = alert_y
-        self._alert_callback_function = alert_callback_function
-
     def set_tracking_callback(self, tracking_callback):
         if not isinstance(tracking_callback, FunctionType):
             raise Exception("tracking_callback is not a valid Function with type: FunctionType!")
@@ -63,32 +54,6 @@ class ColorTracker(object):
             self._tracker_points = deque(maxlen=self._max_nb_of_points)
         else:
             self._tracker_points = deque()
-
-    # TODO: split to: check if crossed and alert when crossed
-    def _alert_when_crossed_line(self):
-        x, y = self._tracker_points[0]
-        try:
-            prev_point_x, prev_point_y = self._tracker_points[-1]
-        except IndexError as e:
-            return
-
-        if prev_point_y < self._alert_y:
-            if not self._alerted:
-                if y >= self._alert_y:
-                    self._alerted = True
-                    try:
-                        self._alert_callback_function()
-                    except TypeError as e:
-                        print("""
-                                [*] alert callback function has 0 args
-                                Example:
-                                    def callback():
-                                        pass
-                                """)
-                        raise e
-            else:
-                if y < self._alert_y:
-                    self._alerted = False
 
     def get_tracker_points(self):
         """
@@ -113,15 +78,11 @@ class ColorTracker(object):
         if self._last_detected_object_contour is not None:
             self._last_detected_object_center = helpers.get_contour_center(self._last_detected_object_contour)
 
-            if self._alert_y is not None and self._alert_callback_function is not None:
-                # self._alert_when_crossed_line()
-                pass
-
             self._add_new_tracker_point(min_point_distance, max_point_distance)
         else:
             self._last_detected_object_center = None
 
-    def _draw_debug_things(self, draw_tracker_points=True, draw_alert_line=True, draw_contour=True,
+    def _draw_debug_things(self, draw_tracker_points=True, draw_contour=True,
                            draw_object_center=True):
         if draw_contour:
             if self._last_detected_object_contour is not None:
@@ -129,10 +90,6 @@ class ColorTracker(object):
         if draw_object_center:
             if self._last_detected_object_center is not None:
                 cv2.circle(self._debug_frame, self._last_detected_object_center, 3, (0, 0, 255), -1)
-        if draw_alert_line:
-            if self._alert_y is not None:
-                h, w, c = self._debug_frame.shape
-                cv2.line(self._debug_frame, (0, self._alert_y), (w, self._alert_y), (255, 0, 0), 1)
         if draw_tracker_points:
             self._draw_tracker_points(self._debug_frame)
 
