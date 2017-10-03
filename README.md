@@ -1,9 +1,6 @@
 # Color Tracker
 
-Color tracking module with OpenCV 3.
-
-It also has an "alert callback function" when the object crosses a line. You can set this line with `alert_y` and
-the callback function with `alert_callback_function`.
+Color tracking module for easy object tracking based on colors.
 
 ## Sample
 
@@ -29,10 +26,9 @@ Install:
 '0.1.0'
 ```
 
-There are 2 callbacks:
+There is one callback:
 
-- *tracking callback*: called at every frame
-- *alert callback*: called only when it crossed the "alert line"
+- *tracking callback*: called at every frame of the tracking
 
 You can find sample scripts at the `Examples` folder
 
@@ -41,7 +37,12 @@ import cv2
 import color_tracker
 
 
-def tracking_callback(frame, debug_frame, object_center):
+def tracking_callback():
+    frame = tracker.get_frame()
+    debug_frame = tracker.get_debug_image()
+    object_center = tracker.get_last_object_center()
+
+    cv2.imshow("original frame", frame)
     cv2.imshow("debug frame", debug_frame)
     key = cv2.waitKey(1)
     if key == 27:

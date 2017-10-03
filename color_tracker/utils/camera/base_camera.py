@@ -15,7 +15,7 @@ class Camera(object):
         self._frame_height = None
         self._ret = False
 
-        self.auto_undistortion = False
+        self._auto_undistortion = False
         self._camera_matrix = None
         self._distortion_coefficients = None
 
@@ -72,7 +72,12 @@ class Camera(object):
         With this you can grab the last frame from the camera
         :return (boolean, np.array): return value and frame
         """
-        return self._ret, self._frame
+        if self._is_running:
+            return self._ret, self._frame
+        else:
+            import warnings
+            warnings.warn("Camera is not started, you should start it with start_camera()")
+            return False, None
 
     def release_camera(self):
         """
@@ -89,10 +94,10 @@ class Camera(object):
         self._distortion_coefficients = distortion_coefficients
 
     def activate_auto_undistortion(self):
-        self.auto_undistortion = True
+        self._auto_undistortion = True
 
     def deactivate_auto_undistortion(self):
-        self.auto_undistortion = False
+        self._auto_undistortion = False
 
     def _undistort_image(self, image):
         if self._camera_matrix is None or self._distortion_coefficients is None:
