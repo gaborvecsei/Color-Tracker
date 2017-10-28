@@ -25,6 +25,7 @@ class ColorTracker(object):
         self._tracking_callback = None
         self._last_detected_object_contour = None
         self._last_detected_object_center = None
+        self._object_bounding_box = None
         self._is_running = False
         self._frame = None
         self._debug_frame = None
@@ -77,19 +78,24 @@ class ColorTracker(object):
 
         if self._last_detected_object_contour is not None:
             self._last_detected_object_center = helpers.get_contour_center(self._last_detected_object_contour)
-
+            self._object_bounding_box = helpers.get_bounding_box_for_contour(self._last_detected_object_contour)
             self._add_new_tracker_point(min_point_distance, max_point_distance)
         else:
             self._last_detected_object_center = None
 
     def _draw_debug_things(self, draw_tracker_points=True, draw_contour=True,
-                           draw_object_center=True):
+                           draw_object_center=True, draw_boundin_box=True):
         if draw_contour:
             if self._last_detected_object_contour is not None:
                 cv2.drawContours(self._debug_frame, [self._last_detected_object_contour], -1, (0, 255, 0), cv2.FILLED)
         if draw_object_center:
             if self._last_detected_object_center is not None:
                 cv2.circle(self._debug_frame, self._last_detected_object_center, 3, (0, 0, 255), -1)
+        if draw_boundin_box:
+            if self._object_bounding_box is not None:
+                pt1 = self._object_bounding_box[0]
+                pt2 = self._object_bounding_box[1]
+                cv2.rectangle(self._debug_frame, pt1, pt2, (255, 255, 255), 1)
         if draw_tracker_points:
             self._draw_tracker_points(self._debug_frame)
 
@@ -185,3 +191,18 @@ class ColorTracker(object):
 
     def get_last_object_center(self):
         return self._last_detected_object_center
+
+    def get_object_bounding_box(self):
+        return self._object_bounding_box
+
+    def get_object_sub_image(self):
+        """
+        Returns the sub image from the original image defined by the object's bounding box
+        """
+
+        pt1 = self._object_bounding_box[0]
+        pt2 = self._object_bounding_box[1]
+        sub_image = self._frame[pt1[1]:pt2[1], pt1[0]:pt2[0]]
+        if len(sub_image) == 0 or sub_image == []:
+            return None
+        return sub_image
