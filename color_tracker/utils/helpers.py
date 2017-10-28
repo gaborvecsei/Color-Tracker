@@ -111,3 +111,10 @@ def find_object_contours(image, hsv_lower_value, hsv_upper_value, kernel):
     if kernel is not None:
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
     return cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+
+
+def get_bounding_box_for_contour(contour):
+    x, y, w, h = cv2.boundingRect(contour)
+    pt_top_left = (x, y)
+    pt_bottom_right = (x + w, y + h)
+    return pt_top_left, pt_bottom_right
