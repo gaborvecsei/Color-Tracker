@@ -23,16 +23,16 @@ class HSVColorRangeDetector:
         trackbars_window_name = "hsv settings"
         cv2.namedWindow(trackbars_window_name)
 
-        h_min_trackbar = _Trackbar("H min", trackbars_window_name, 166, 255)
-        s_min_trackbar = _Trackbar("S min", trackbars_window_name, 75, 255)
-        v_min_trackbar = _Trackbar("V min", trackbars_window_name, 168, 255)
+        h_min_trackbar = _Trackbar("H min", trackbars_window_name, 0, 255)
+        s_min_trackbar = _Trackbar("S min", trackbars_window_name, 0, 255)
+        v_min_trackbar = _Trackbar("V min", trackbars_window_name, 0, 255)
 
-        h_max_trackbar = _Trackbar("H max", trackbars_window_name, 189, 255)
-        s_max_trackbar = _Trackbar("S max", trackbars_window_name, 129, 255)
+        h_max_trackbar = _Trackbar("H max", trackbars_window_name, 255, 255)
+        s_max_trackbar = _Trackbar("S max", trackbars_window_name, 255, 255)
 
-        kernel_x = _Trackbar("kernel x", trackbars_window_name, 35, 255)
-        kernel_y = _Trackbar("kernel y", trackbars_window_name, 35, 255)
-        v_max_trackbar = _Trackbar("V max", trackbars_window_name, 255, 255)
+        kernel_x = _Trackbar("kernel x", trackbars_window_name, 0, 255)
+        kernel_y = _Trackbar("kernel y", trackbars_window_name, 0, 255)
+        # v_max_trackbar = _Trackbar("V max", trackbars_window_name, 255, 255)
 
         self._trackbars = [h_min_trackbar, s_min_trackbar, v_min_trackbar, h_max_trackbar, s_max_trackbar,
                            v_max_trackbar, kernel_x, kernel_y]
