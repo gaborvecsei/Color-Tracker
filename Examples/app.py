@@ -29,6 +29,7 @@ if __name__ == "__main__":
     tracker.track(hsv_lower_value=(0, 100, 100),
                   hsv_upper_value=(10, 255, 255),
                   min_contour_area=1000,
-                  kernel=kernel)
+                  kernel=kernel,
+                  input_image_type="bgr")
 
     webcam.release_camera()

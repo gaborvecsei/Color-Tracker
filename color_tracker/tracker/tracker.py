@@ -6,6 +6,12 @@ import cv2
 
 from color_tracker.utils import helpers
 
+_RGB_TYPE = "rgb"
+_BGR_TYPE = "bgr"
+_GRAY_TYPE = "gray"
+
+_ACCEPTED_IMAGE_TYPES = [_RGB_TYPE, _BGR_TYPE, _GRAY_TYPE]
+
 
 class ColorTracker(object):
     def __init__(self, camera, max_nb_of_points=None, debug=True):
@@ -30,7 +36,12 @@ class ColorTracker(object):
         self._frame = None
         self._debug_frame = None
 
+        self._frame_preprocessor = None
+
         self._create_tracker_points_list()
+
+    def set_frame_preprocessor(self, preprocessor_func):
+        self._frame_preprocessor = preprocessor_func
 
     def set_court_points(self, court_points):
         """
@@ -134,9 +145,13 @@ class ColorTracker(object):
             import warnings
             warnings.warn("There is no camera feed!")
 
-    def track(self, hsv_lower_value, hsv_upper_value, min_contour_area, kernel=None, min_track_point_distance=20):
+    def track(self, hsv_lower_value, hsv_upper_value, min_contour_area, input_image_type="bgr", kernel=None,
+              min_track_point_distance=20):
         """
         With this we can start the tracking with the given parameters
+        :param input_image_type: Type of the input image (color ordering). The standard is BGR because of OpenCV.
+        That is the default image ordering but if you use a different type you have to set it here.
+        (For example when you use a different input source or you used some preprocessing on the input image)
         :param hsv_lower_value: lowest acceptable hsv values
         :param hsv_upper_value: highest acceptable hsv values
         :param min_contour_area: minimum contour area for the detection. Below that the detection does not count
@@ -148,6 +163,11 @@ class ColorTracker(object):
 
         while True:
             self._read_from_camera()
+
+            if self._frame_preprocessor is not None:
+                self._frame = self._frame_preprocessor(self._frame)
+
+            self._check_and_fix_image_type(input_image_type=input_image_type)
 
             if (self._selection_points is not None) and (self._selection_points != []):
                 self._frame = helpers.crop_out_polygon_convex(self._frame, self._selection_points)
@@ -178,6 +198,22 @@ class ColorTracker(object):
 
             if not self._is_running:
                 break
+
+    def _check_and_fix_image_type(self, input_image_type="bgr"):
+        input_image_type = input_image_type.lower()
+
+        if input_image_type not in _ACCEPTED_IMAGE_TYPES:
+            raise ValueError(
+                "Image type: {0} is not in accepted types: {1}".format(input_image_type, _ACCEPTED_IMAGE_TYPES))
+
+        try:
+            if input_image_type == "rgb":
+                self._frame = cv2.cvtColor(self._frame, cv2.COLOR_RGB2BGR)
+            elif input_image_type == "gray":
+                self._frame = cv2.cvtColor(self._frame, cv2.COLOR_GRAY2BGR)
+        except cv2.error as e:
+            print("Could not convert to BGR image format. Maybe you should define another input_image_type")
+            raise
 
     def get_debug_image(self):
         if self._debug:
