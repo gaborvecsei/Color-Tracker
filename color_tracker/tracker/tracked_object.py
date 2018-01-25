@@ -9,3 +9,4 @@ class TrackedObject(object):
         self.prediction = np.asarray(prediction)  # predicted centroids (x,y)
         self.skipped_frames = 0  # number of frames skipped undetected
         self.trace = []
+        self.last_detected_contour = None

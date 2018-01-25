@@ -105,13 +105,14 @@ def get_contour_center(contour):
     return center
 
 
-def find_object_contours(image, hsv_lower_value, hsv_upper_value, kernel, min_contour_area=0):
+def find_object_contours(image, hsv_lower_value, hsv_upper_value, kernel, max_nb_of_objects, min_contour_area=0):
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     mask = cv2.inRange(hsv, hsv_lower_value, hsv_upper_value)
     if kernel is not None:
         mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, kernel, iterations=1)
     contours = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
     area_checked_contours = [c for c in contours if cv2.contourArea(c) > min_contour_area]
+    area_checked_contours = area_checked_contours[:max_nb_of_objects]
     return area_checked_contours
 
 
@@ -130,3 +131,8 @@ def get_bounding_box_for_contour(contour):
     pt_top_left = (x, y)
     pt_bottom_right = (x + w, y + h)
     return pt_top_left, pt_bottom_right
+
+
+color_list = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
+              (0, 255, 255), (255, 0, 255), (255, 127, 255),
+              (127, 0, 255), (127, 0, 127)]

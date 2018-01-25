@@ -20,8 +20,7 @@ if __name__ == "__main__":
 
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
 
-    tracker = color_tracker.ColorTracker(camera=webcam, max_nb_of_points=20, max_trace_length=200,
-                                         max_frames_to_skip=30, dist_thresh=160, debug=True)
+    tracker = color_tracker.ColorTracker(camera=webcam, debug=True)
 
     tracker.set_tracking_callback(tracking_callback=tracking_callback)
 
@@ -29,6 +28,9 @@ if __name__ == "__main__":
                   hsv_upper_value=(128, 255, 255),
                   kernel=kernel,
                   min_contour_area=200,
-                  input_image_type="bgr")
+                  max_nb_of_objects=1,
+                  max_number_of_points=100,
+                  max_frames_to_skip=30,
+                  maximum_distance_between_points=160, )
 
     webcam.release_camera()
