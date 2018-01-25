@@ -8,6 +8,8 @@ Color tracking module for easy object tracking based on colors.
 
 ![yellow cruiser sample gif](https://github.com/gaborvecsei/Color-Tracker/blob/master/Examples/yellow_cruiser.gif)
 
+<img  width="400" src="https://github.com/gaborvecsei/Color-Tracker/raw/master/Examples/ball_tracking.gif" />
+
 ## Setup & install
 
 You will need:
