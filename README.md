@@ -95,4 +95,3 @@ Gábor Vecsei
 - [LinkedIn](https://www.linkedin.com/in/gaborvecsei)
 - [Twitter](https://twitter.com/GAwesomeBE)
 - [Github](https://github.com/gaborvecsei)
-- vecseigabor.x@gmail.com
