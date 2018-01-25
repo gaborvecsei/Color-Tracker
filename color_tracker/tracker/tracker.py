@@ -1,9 +1,11 @@
 import math
 from collections import deque
 from types import FunctionType
-
+import numpy as np
 import cv2
+from scipy.optimize import linear_sum_assignment
 
+from color_tracker.tracker.tracked_object import TrackedObject
 from color_tracker.utils import helpers
 
 _RGB_TYPE = "rgb"
@@ -14,31 +16,33 @@ _ACCEPTED_IMAGE_TYPES = [_RGB_TYPE, _BGR_TYPE, _GRAY_TYPE]
 
 
 class ColorTracker(object):
-    def __init__(self, camera, max_nb_of_points=None, debug=True):
+    def __init__(self, camera, dist_thresh, max_frames_to_skip, max_trace_length, max_nb_of_points=None, debug=True):
         """
         :param camera: Camera object which parent is a Camera object (like WebCamera)
-        :param max_nb_of_points: Maxmimum number of points for storing. If it is set
+        :param max_nb_of_points: Maximum number of points for storing. If it is set
         to None than it means there is no limit
         :param debug: When it's true than we can see the visualization of the captured points etc...
         """
 
         super().__init__()
         self._camera = camera
-        self._tracker_points = None
+        self.tracks = []
         self._debug = debug
-        self._max_nb_of_points = max_nb_of_points
+        self._max_nb_of_objects = max_nb_of_points
         self._selection_points = None
         self._tracking_callback = None
-        self._last_detected_object_contour = None
-        self._last_detected_object_center = None
-        self._object_bounding_box = None
         self._is_running = False
         self._frame = None
         self._debug_frame = None
+        self.dist_thresh = dist_thresh
+        self.max_frames_to_skip = max_frames_to_skip
+        self.max_trace_length = max_trace_length
+        self.trackIdCount = 0
+        self.track_colors = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0),
+                             (0, 255, 255), (255, 0, 255), (255, 127, 255),
+                             (127, 0, 255), (127, 0, 127)]
 
         self._frame_preprocessor = None
-
-        self._create_tracker_points_list()
 
     def set_frame_preprocessor(self, preprocessor_func):
         self._frame_preprocessor = preprocessor_func
@@ -57,77 +61,21 @@ class ColorTracker(object):
             raise Exception("tracking_callback is not a valid Function with type: FunctionType!")
         self._tracking_callback = tracking_callback
 
-    def _create_tracker_points_list(self):
-        """
-        Initialize the tracker point list
-        """
+    def get_tracked_objects(self):
+        return self._tracked_objects
 
-        if self._max_nb_of_points:
-            self._tracker_points = deque(maxlen=self._max_nb_of_points)
-        else:
-            self._tracker_points = deque()
-
-    def get_tracker_points(self):
-        """
-        :return (list): Returns the tracker points what were captured
-        """
-        return self._tracker_points
-
-    def _add_new_tracker_point(self, min_point_distance, max_point_distance):
-        try:
-            dst = helpers.calculate_distance(self._tracker_points[-1], self._last_detected_object_center)
-            if max_point_distance > dst > min_point_distance:
-                self._tracker_points.append(self._last_detected_object_center)
-        except IndexError:
-            # It happens only when the queue is empty and we need a starting point
-            self._tracker_points.append(self._last_detected_object_center)
-
-    def _find_and_track_object_center_point(self, contours, min_contour_area,
-                                            min_point_distance, max_point_distance):
-
-        self._last_detected_object_contour = helpers.get_largest_contour(contours, min_contour_area)
-
-        if self._last_detected_object_contour is not None:
-            self._last_detected_object_center = helpers.get_contour_center(self._last_detected_object_contour)
-            self._object_bounding_box = helpers.get_bounding_box_for_contour(self._last_detected_object_contour)
-            self._add_new_tracker_point(min_point_distance, max_point_distance)
-        else:
-            self._last_detected_object_center = None
+    def _add_new_tracked_object(self):
+        # TODO
+        pass
 
     def _draw_debug_things(self, draw_tracker_points=True, draw_contour=True,
                            draw_object_center=True, draw_boundin_box=True):
-        if draw_contour:
-            if self._last_detected_object_contour is not None:
-                cv2.drawContours(self._debug_frame, [self._last_detected_object_contour], -1, (0, 255, 0), cv2.FILLED)
-        if draw_object_center:
-            if self._last_detected_object_center is not None:
-                cv2.circle(self._debug_frame, self._last_detected_object_center, 3, (0, 0, 255), -1)
-        if draw_boundin_box:
-            if self._object_bounding_box is not None:
-                pt1 = self._object_bounding_box[0]
-                pt2 = self._object_bounding_box[1]
-                cv2.rectangle(self._debug_frame, pt1, pt2, (255, 255, 255), 1)
-        if draw_tracker_points:
-            self._draw_tracker_points(self._debug_frame)
-
-    def clear_track_points(self):
-        """
-        Delete all tracker points
-        """
-
-        if len(self._tracker_points) > 0:
-            self._create_tracker_points_list()
+        # TODO
+        pass
 
     def _draw_tracker_points(self, debug_image):
-        if debug_image is not None:
-            for i in range(1, len(self._tracker_points)):
-                if self._tracker_points[i - 1] is None or self._tracker_points[i] is None:
-                    continue
-                rectangle_offset = 4
-                rectangle_pt1 = tuple(x - rectangle_offset for x in self._tracker_points[i])
-                rectangle_pt2 = tuple(x + rectangle_offset for x in self._tracker_points[i])
-                cv2.rectangle(debug_image, rectangle_pt1, rectangle_pt2, (255, 255, 255), 1)
-                cv2.line(debug_image, self._tracker_points[i - 1], self._tracker_points[i], (255, 255, 255), 1)
+        # TODO
+        pass
 
     def stop_tracking(self):
         """
@@ -145,8 +93,7 @@ class ColorTracker(object):
             import warnings
             warnings.warn("There is no camera feed!")
 
-    def track(self, hsv_lower_value, hsv_upper_value, min_contour_area, input_image_type="bgr", kernel=None,
-              min_track_point_distance=20):
+    def track(self, hsv_lower_value, hsv_upper_value, min_contour_area=0, input_image_type="bgr", kernel=None):
         """
         With this we can start the tracking with the given parameters
         :param input_image_type: Type of the input image (color ordering). The standard is BGR because of OpenCV.
@@ -175,19 +122,120 @@ class ColorTracker(object):
             img = self._frame.copy()
             self._debug_frame = self._frame.copy()
 
-            cnts = helpers.find_object_contours(image=img,
-                                                hsv_lower_value=hsv_lower_value,
-                                                hsv_upper_value=hsv_upper_value,
-                                                kernel=kernel)
+            contours = helpers.find_object_contours(image=img,
+                                                    hsv_lower_value=hsv_lower_value,
+                                                    hsv_upper_value=hsv_upper_value,
+                                                    kernel=kernel,
+                                                    min_contour_area=min_contour_area)
 
-            self._find_and_track_object_center_point(contours=cnts,
-                                                     min_contour_area=min_contour_area,
-                                                     min_point_distance=min_track_point_distance,
-                                                     max_point_distance=math.inf)
+            detections = helpers.get_contour_centers(contours)
 
-            if self._debug:
-                self._draw_debug_things(draw_contour=False)
+            ###############################################################
 
+            if (len(self.tracks) == 0):
+                for i in range(len(detections)):
+                    track = TrackedObject(self.trackIdCount, detections[i])
+                    self.trackIdCount += 1
+                    self.tracks.append(track)
+
+                # Calculate cost using sum of square distance between
+                # predicted vs detected centroids
+            N = len(self.tracks)
+            M = len(detections)
+            cost = np.zeros(shape=(N, M))  # Cost matrix
+            for i in range(len(self.tracks)):
+                for j in range(len(detections)):
+                    try:
+                        diff = self.tracks[i].prediction - detections[j]
+                        distance = np.sqrt(diff[0][0] * diff[0][0] +
+                                           diff[1][0] * diff[1][0])
+                        cost[i][j] = distance
+                    except:
+                        pass
+
+            # Let's average the squared ERROR
+            cost = (0.5) * cost
+            # Using Hungarian Algorithm assign the correct detected measurements
+            # to predicted tracks
+            assignment = []
+            for _ in range(N):
+                assignment.append(-1)
+            row_ind, col_ind = linear_sum_assignment(cost)
+            for i in range(len(row_ind)):
+                assignment[row_ind[i]] = col_ind[i]
+
+            # Identify tracks with no assignment, if any
+            un_assigned_tracks = []
+            for i in range(len(assignment)):
+                if (assignment[i] != -1):
+                    # check for cost distance threshold.
+                    # If cost is very high then un_assign (delete) the track
+                    if (cost[i][assignment[i]] > self.dist_thresh):
+                        assignment[i] = -1
+                        un_assigned_tracks.append(i)
+                    pass
+                else:
+                    self.tracks[i].skipped_frames += 1
+
+            # If tracks are not detected for long time, remove them
+            del_tracks = []
+            for i in range(len(self.tracks)):
+                if (self.tracks[i].skipped_frames > self.max_frames_to_skip):
+                    del_tracks.append(i)
+            if len(del_tracks) > 0:  # only when skipped frame exceeds max
+                for id in del_tracks:
+                    if id < len(self.tracks):
+                        del self.tracks[id]
+                        del assignment[id]
+
+            # Now look for un_assigned detects
+            un_assigned_detects = []
+            for i in range(len(detections)):
+                if i not in assignment:
+                    un_assigned_detects.append(i)
+
+            # Start new tracks
+            if (len(un_assigned_detects) != 0):
+                for i in range(len(un_assigned_detects)):
+                    track = TrackedObject(self.trackIdCount, detections[un_assigned_detects[i]])
+                    self.trackIdCount += 1
+                    self.tracks.append(track)
+
+            # Update KalmanFilter state, lastResults and tracks trace
+            for i in range(len(assignment)):
+                self.tracks[i].KF.predict()
+
+                if (assignment[i] != -1):
+                    self.tracks[i].skipped_frames = 0
+                    self.tracks[i].prediction = self.tracks[i].KF.correct(
+                        detections[assignment[i]], 1)
+                else:
+                    self.tracks[i].prediction = self.tracks[i].KF.correct(
+                        np.array([[0], [0]]), 0)
+
+                if (len(self.tracks[i].trace) > self.max_trace_length):
+                    for j in range(len(self.tracks[i].trace) -
+                                   self.max_trace_length):
+                        del self.tracks[i].trace[j]
+
+                self.tracks[i].trace.append(self.tracks[i].prediction)
+                self.tracks[i].KF.lastResult = self.tracks[i].prediction
+
+            ###############################################################
+
+            for i in range(len(self.tracks)):
+                if (len(self.tracks[i].trace) > 1):
+                    for j in range(len(self.tracks[i].trace) - 1):
+                        # Draw trace line
+                        x1 = self.tracks[i].trace[j][0][0]
+                        y1 = self.tracks[i].trace[j][1][0]
+                        x2 = self.tracks[i].trace[j + 1][0][0]
+                        y2 = self.tracks[i].trace[j + 1][1][0]
+                        clr = self.tracks[i].track_id % 9
+                        cv2.line(self._debug_frame, (int(x1), int(y1)), (int(x2), int(y2)),
+                                 self.track_colors[clr], 2)
+
+            ########################################x
             if self._tracking_callback is not None:
                 try:
                     self._tracking_callback()
@@ -224,21 +272,3 @@ class ColorTracker(object):
 
     def get_frame(self):
         return self._frame
-
-    def get_last_object_center(self):
-        return self._last_detected_object_center
-
-    def get_object_bounding_box(self):
-        return self._object_bounding_box
-
-    def get_object_sub_image(self):
-        """
-        Returns the sub image from the original image defined by the object's bounding box
-        """
-
-        pt1 = self._object_bounding_box[0]
-        pt2 = self._object_bounding_box[1]
-        sub_image = self._frame[pt1[1]:pt2[1], pt1[0]:pt2[0]]
-        if len(sub_image) == 0 or sub_image == []:
-            return None
-        return sub_image
