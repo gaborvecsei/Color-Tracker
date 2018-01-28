@@ -5,7 +5,7 @@ import numpy as np
 import cv2
 from scipy import optimize
 
-from color_tracker.tracker.tracked_object import TrackedObject
+from color_tracker.tracker.tracked_object import MultiTrackedObject, SimpleObject
 from color_tracker.utils import helpers
 
 _RGB_TYPE = "rgb"
@@ -54,8 +54,32 @@ class ColorTracker(object):
     def get_tracked_objects(self):
         return self._tracked_objects
 
-    def _draw_debug_things(self, draw_tracker_points=True, draw_contour=True,
-                           draw_object_center=True, draw_bounding_box=True):
+    def _draw_debug_things_for_single_tracking(self, draw_tracker_points=True, draw_contour=True,
+                                               draw_object_center=True, draw_bounding_box=True):
+        to = self._tracked_objects[0]
+        if draw_contour:
+            if to.last_detected_contour is not None:
+                cv2.drawContours(self._debug_frame, [to.last_detected_contour], -1, (0, 255, 0), cv2.FILLED)
+        if draw_object_center:
+            if to.last_detected_contour is not None:
+                cv2.circle(self._debug_frame, to.get_trace()[-1], 3, (0, 0, 255), -1)
+        if draw_bounding_box:
+            if to.last_detected_contour is not None:
+                pt1 = helpers.get_bounding_box_for_contour(to.last_detected_contour)[0]
+                pt2 = helpers.get_bounding_box_for_contour(to.last_detected_contour)[1]
+                cv2.rectangle(self._debug_frame, pt1, pt2, (255, 255, 255), 1)
+        if draw_tracker_points:
+            for i in range(1, len(to.get_trace())):
+                if to.get_trace()[i - 1] is None or to.get_trace()[i] is None:
+                    continue
+                rectangle_offset = 4
+                rectangle_pt1 = tuple(x - rectangle_offset for x in to.get_trace()[i])
+                rectangle_pt2 = tuple(x + rectangle_offset for x in to.get_trace()[i])
+                cv2.rectangle(self._debug_frame, rectangle_pt1, rectangle_pt2, (255, 255, 255), 1)
+                cv2.line(self._debug_frame, to.get_trace()[i - 1], to.get_trace()[i], (255, 255, 255), 1)
+
+    def _draw_debug_things_for_multi_tracking(self, draw_tracker_points=True, draw_contour=True,
+                                              draw_object_center=True, draw_bounding_box=True):
 
         for to in self._tracked_objects:
 
@@ -103,7 +127,8 @@ class ColorTracker(object):
             warnings.warn("There is no camera feed!")
 
     def track(self, hsv_lower_value, hsv_upper_value, min_contour_area=0, max_number_of_points=300,
-              max_nb_of_objects=10, maximum_distance_between_points=200, max_frames_to_skip=10, kernel=None,
+              max_nb_of_objects=10, maximum_distance_between_points=200, max_frames_to_skip=30, min_poin_distance=0,
+              kernel=None,
               input_image_type="bgr"):
         """
         With this we can start the tracking with the given parameters
@@ -143,13 +168,17 @@ class ColorTracker(object):
                                                     max_nb_of_objects=max_nb_of_objects,
                                                     min_contour_area=min_contour_area)
 
-            object_centers = helpers.get_contour_centers(contours)
-
-            self._kalman_filter_multi_object_tracking(object_centers, contours, maximum_distance_between_points,
-                                                      max_frames_to_skip, max_number_of_points)
+            if max_nb_of_objects > 1:
+                self._kalman_filter_multi_object_tracking(contours, maximum_distance_between_points,
+                                                          max_frames_to_skip, max_number_of_points)
+            else:
+                self._single_object_tracking(contours, max_number_of_points, min_poin_distance)
 
             if self._debug:
-                self._draw_debug_things()
+                if max_nb_of_objects > 1:
+                    self._draw_debug_things_for_multi_tracking()
+                else:
+                    self._draw_debug_things_for_single_tracking()
 
             if self._tracking_callback is not None:
                 try:
@@ -162,12 +191,37 @@ class ColorTracker(object):
             if not self._is_running:
                 break
 
-    def _kalman_filter_multi_object_tracking(self, object_centers, contours, maximum_distance_between_points,
+    def _single_object_tracking(self, contours, max_number_of_points, min_point_distance, max_point_distance=math.inf):
+
+        if len(self._tracked_objects) == 0:
+            init_to = SimpleObject()
+            self._tracked_objects.append(init_to)
+
+        to = self._tracked_objects[0]
+        if len(contours) > 0:
+            largest_contour = contours[0]
+            object_center = helpers.get_contour_centers(contours)[0]
+        else:
+            return
+
+        if len(to.trace) > 0:
+            dst = helpers.calculate_distance(to.trace[-1], object_center)
+            if max_point_distance > dst > min_point_distance:
+                to.trace.append(object_center)
+                to.trace = to.trace[-max_number_of_points:]
+                to.last_detected_contour = largest_contour
+        else:
+            to.trace.append(object_center)
+            to.last_detected_contour = largest_contour
+
+    def _kalman_filter_multi_object_tracking(self, contours, maximum_distance_between_points,
                                              max_frames_to_skip,
                                              max_number_of_points):
+        object_centers = helpers.get_contour_centers(contours)
+
         if len(self._tracked_objects) == 0:
             for d in object_centers:
-                track = TrackedObject(self._track_id_count, d)
+                track = MultiTrackedObject(self._track_id_count, d)
                 self._track_id_count += 1
                 self._tracked_objects.append(track)
 
@@ -204,7 +258,7 @@ class ColorTracker(object):
 
         if len(un_assigned_detections) != 0:
             for uad in un_assigned_detections:
-                track = TrackedObject(self._track_id_count, object_centers[uad])
+                track = MultiTrackedObject(self._track_id_count, object_centers[uad])
                 self._track_id_count += 1
                 self._tracked_objects.append(track)
 
@@ -215,7 +269,10 @@ class ColorTracker(object):
                 self._tracked_objects[i].skipped_frames = 0
                 self._tracked_objects[i].prediction = self._tracked_objects[i].KF.correct(
                     object_centers[assignment[i]], 1)
-                self._tracked_objects[i].last_detected_contour = contours[i]
+                try:
+                    self._tracked_objects[i].last_detected_contour = contours[i]
+                except Exception:
+                    pass
             else:
                 self._tracked_objects[i].prediction = self._tracked_objects[i].KF.correct(
                     np.array([[0], [0]]), 0)

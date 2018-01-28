@@ -27,10 +27,10 @@ if __name__ == "__main__":
     tracker.track(hsv_lower_value=(94, 173, 80),
                   hsv_upper_value=(128, 255, 255),
                   kernel=kernel,
-                  min_contour_area=200,
-                  max_nb_of_objects=1,
+                  min_contour_area=1000,
+                  max_nb_of_objects=3,
                   max_number_of_points=100,
                   max_frames_to_skip=30,
-                  maximum_distance_between_points=160, )
+                  maximum_distance_between_points=160)
 
     webcam.release_camera()
