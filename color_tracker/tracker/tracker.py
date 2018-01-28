@@ -132,6 +132,7 @@ class ColorTracker(object):
               input_image_type="bgr"):
         """
         With this we can start the tracking with the given parameters
+        :param min_poin_distance:
         :param max_nb_of_objects:
         :param max_number_of_points: Maximum number of points
         :param max_frames_to_skip:
