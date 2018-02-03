@@ -36,7 +36,7 @@ setup(
 
     license='MIT',
 
-    install_requires=['numpy'],
+    install_requires=['numpy', 'scipy', 'cv2'],
 
     classifiers=[
         'Development Status :: 4 - Beta',
