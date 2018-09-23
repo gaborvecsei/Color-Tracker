@@ -32,4 +32,4 @@ if __name__ == "__main__":
                   kernel=kernel,
                   input_image_type="bgr")
 
-    webcam.release_camera()
+    webcam.release()

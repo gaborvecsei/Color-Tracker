@@ -91,7 +91,7 @@ class HSVColorRangeDetector:
             if key == 27:
                 break
 
-        self._camera.release_camera()
+        self._camera.release()
         cv2.destroyAllWindows()
 
         upper_color = np.array([h_max, s_max, v_max])

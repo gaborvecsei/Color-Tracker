@@ -66,7 +66,7 @@ tracker.track(hsv_lower_value=(0, 100, 100),
               min_contour_area=1000,
               kernel=kernel)
 
-webcam.release_camera()
+webcam.release()
 ```
 
 ## Color Range Detection

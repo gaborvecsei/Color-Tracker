@@ -79,7 +79,7 @@ class Camera(object):
             warnings.warn("Camera is not started, you should start it with start_camera()")
             return False, None
 
-    def release_camera(self):
+    def release(self):
         """
         Stop the camera
         """
