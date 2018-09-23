@@ -136,17 +136,18 @@ class ColorTracker(object):
 
         self._is_running = False
 
-    def _read_from_camera(self):
+    def _read_from_camera(self, flip_camera_image):
         ret, self._frame = self._camera.read()
 
         if ret:
-            self._frame = cv2.flip(self._frame, 1)
+            if flip_camera_image:
+                self._frame = cv2.flip(self._frame, 1)
         else:
             import warnings
             warnings.warn("There is no camera feed!")
 
     def track(self, hsv_lower_value, hsv_upper_value, min_contour_area, input_image_type="bgr", kernel=None,
-              min_track_point_distance=20):
+              min_track_point_distance=20, flip_camera_image=True):
         """
         With this we can start the tracking with the given parameters
         :param input_image_type: Type of the input image (color ordering). The standard is BGR because of OpenCV.
@@ -162,7 +163,7 @@ class ColorTracker(object):
         self._is_running = True
 
         while True:
-            self._read_from_camera()
+            self._read_from_camera(flip_camera_image)
 
             if self._frame_preprocessor is not None:
                 self._frame = self._frame_preprocessor(self._frame)

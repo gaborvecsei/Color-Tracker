@@ -35,6 +35,6 @@ class WebCamera(Camera):
         else:
             return False, None
 
-    def release_camera(self):
-        super().release_camera()
+    def release(self):
+        super().release()
         self._cam.release()
