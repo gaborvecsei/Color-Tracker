@@ -75,15 +75,26 @@ class HSVColorRangeDetector:
             display_width = 360
             display_height = 240
 
+            font_color = (0, 255, 255)
+            font_scale = 0.4
+            font_org = (5, 10)
+
+            # Original image
             img_display = helpers.resize_img(img, display_width, display_height)
-            thresh_display = cv2.cvtColor(helpers.resize_img(thresh, display_width, display_height),
-                                          cv2.COLOR_GRAY2BGR)
-            display_img_1 = np.concatenate((img_display, thresh_display), axis=1)
-
+            cv2.putText(img_display, "Original image", font_org, cv2.FONT_HERSHEY_COMPLEX, font_scale, font_color)
+            # Thresholded image
+            thresh_display = cv2.cvtColor(helpers.resize_img(thresh, display_width, display_height), cv2.COLOR_GRAY2BGR)
+            cv2.putText(thresh_display, "Object map", font_org, cv2.FONT_HERSHEY_COMPLEX, font_scale, font_color)
+            # Preview of masked objects
             preview_display = helpers.resize_img(preview, display_width, display_height)
+            cv2.putText(preview_display, "Object preview", font_org, cv2.FONT_HERSHEY_COMPLEX, font_scale, font_color)
+            # HSV image
             hsv_img_display = helpers.resize_img(hsv_img, display_width, display_height)
-            display_img_2 = np.concatenate((preview_display, hsv_img_display), axis=1)
+            cv2.putText(hsv_img_display, "HSV image", font_org, cv2.FONT_HERSHEY_COMPLEX, font_scale, font_color)
 
+            # Combine images
+            display_img_1 = np.concatenate((img_display, thresh_display), axis=1)
+            display_img_2 = np.concatenate((preview_display, hsv_img_display), axis=1)
             display_img = np.concatenate((display_img_1, display_img_2), axis=0)
 
             cv2.imshow(self._main_window_name, display_img)
