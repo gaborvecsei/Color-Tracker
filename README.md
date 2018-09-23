@@ -2,7 +2,7 @@
 
 # Color Tracker
 
-Color tracking module for easy object tracking based on colors :art:.
+Easy to use color tracking package for object tracking based on colors :art:.
 
 ## Samples
 
@@ -12,23 +12,17 @@ Color tracking module for easy object tracking based on colors :art:.
 
 ## Setup
 
-You will need:
+- Python3 is needed
+- Install:
+    ```python
+    # After cloning the repo:
+    python3 setup.py install
 
-- Python 3
-- OpenCV 3
-- Numpy
+    # OR
 
-Install:
-
-```python
-# After cloning the repo:
-python3 setup.py install
-
-# OR
-
-# Install w/out cloning directly from Github
-pip3 install git+https://github.com/gaborvecsei/Color-Tracker.git
-```
+    # Install w/out cloning directly from Github
+    pip3 install git+https://github.com/gaborvecsei/Color-Tracker.git
+    ```
 
 ## Basic Usage
 
