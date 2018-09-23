@@ -38,7 +38,7 @@ def get_image_channel(image):
     if len(image.shape) == 3:
         h, w, c = image.shape
     else:
-        raise Exception("Image is not RGB image")
+        raise Exception("Image needs to have a shape like: (height, width, channels)")
     return c
 
 
