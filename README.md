@@ -27,7 +27,6 @@ pip install color-tracker
     ```shell
     >>> import color_tracker
     >>> color_tracker.__version__
-    '0.0.2'
     ```
 
 There is one **callback**:
