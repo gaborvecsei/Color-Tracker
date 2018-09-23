@@ -113,3 +113,10 @@ class Camera(object):
         undistorted = cv2.undistort(image, self._camera_matrix, self._distortion_coefficients, None,
                                     new_camera_matrix)
         return undistorted
+
+    def __enter__(self):
+        self.start_camera()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.release()
