@@ -27,6 +27,7 @@ setup(
     version='0.0.2',
     description='Easy to use color tracking package for object tracking based on colors',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/gaborvecsei/Color-Tracker',
     author='Gabor Vecsei',
     author_email='vecseigabor.x@gmail.com',
