@@ -2,3 +2,6 @@ __pycache__
 .idea
 test.py
 video_reader.py
+dist
+build
+*egg-info
