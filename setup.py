@@ -24,7 +24,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='color_tracker',
-    version='0.0.1',
+    version='0.0.2',
     description='Easy to use color tracking package for object tracking based on colors',
     long_description=long_description,
     url='https://github.com/gaborvecsei/Color-Tracker',

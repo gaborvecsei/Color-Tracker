@@ -31,7 +31,7 @@ Easy to use color tracking package for object tracking based on colors :art:.
     ```shell
     >>> import color_tracker
     >>> color_tracker.__version__
-    '0.1.0'
+    '0.0.2'
     ```
 
 There is one **callback**:
