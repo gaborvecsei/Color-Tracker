@@ -25,21 +25,14 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='color_tracker',
     version='0.1.0',
-
-    description='Track color easily',
+    description='Color tracking',
     long_description=long_description,
-
     url='https://github.com/gaborvecsei',
-
     author='Gabor Vecsei',
     author_email='vecseigabor.x@gmail.com',
-
     license='MIT',
-
     install_requires=['numpy'],
-
     classifiers=[
-        'Development Status :: 4 - Beta',
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
         'Intended Audience :: Science/Research',
@@ -48,8 +41,6 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python :: 3'
     ],
-
     keywords='color tracker vecsei gaborvecsei color_tracker',
-
     packages=find_packages(),
 )
