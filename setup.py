@@ -31,7 +31,8 @@ setup(
     author='Gabor Vecsei',
     author_email='vecseigabor.x@gmail.com',
     license='MIT',
-    install_requires=['numpy'],
+    install_requires=['numpy',
+                      'opencv-python'],
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
@@ -39,8 +40,7 @@ setup(
         'Topic :: Education',
         'Topic :: Software Development',
         'License :: OSI Approved :: MIT License',
-        'Programming Language :: Python :: 3'
-    ],
+        'Programming Language :: Python :: 3'],
     keywords='color tracker vecsei gaborvecsei color_tracker',
     packages=find_packages(),
 )
