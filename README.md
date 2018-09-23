@@ -13,6 +13,7 @@ Easy to use color tracking package for object tracking based on colors :art:.
 ## Setup
 
 - Python3 is needed
+- OpenCV>=3 is needed
 - Install:
     ```python
     # After cloning the repo:

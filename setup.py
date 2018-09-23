@@ -31,8 +31,7 @@ setup(
     author='Gabor Vecsei',
     author_email='vecseigabor.x@gmail.com',
     license='MIT',
-    install_requires=['numpy>=1.12',
-                      'opencv-python>=3.1'],
+    install_requires=['numpy>=1.12'],
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
