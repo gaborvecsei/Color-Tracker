@@ -2,15 +2,15 @@
 
 # Color Tracker
 
-Color tracking module for easy object tracking based on colors.
+Color tracking module for easy object tracking based on colors :art:.
 
-## Sample
+## Samples
 
-![yellow cruiser sample gif](https://github.com/gaborvecsei/Color-Tracker/blob/master/Examples/yellow_cruiser.gif)
+![yellow cruiser sample gif](art/yellow_cruiser.gif)
 
-<img  width="400" src="https://github.com/gaborvecsei/Color-Tracker/raw/master/Examples/ball_tracking.gif" />
+<img  width="400" src="art/ball_tracking.gif" />
 
-## Setup & install
+## Setup
 
 You will need:
 
@@ -20,21 +20,30 @@ You will need:
 
 Install:
 
-`python setup.py install` OR `pip install git+https://github.com/gaborvecsei/Color-Tracker.git`
+```python
+# After cloning the repo:
+python3 setup.py install
+
+# OR
+
+# Install w/out cloning directly from Github
+pip3 install git+https://github.com/gaborvecsei/Color-Tracker.git
+```
 
 ## Basic Usage
 
-```shell
->>> import color_tracker
->>> color_tracker.__version__
-'0.1.0'
-```
+- Testing if it got installed
+    ```shell
+    >>> import color_tracker
+    >>> color_tracker.__version__
+    '0.1.0'
+    ```
 
-There is one callback:
+There is one **callback**:
 
-- *tracking callback*: called at every frame of the tracking
+- **tracking callback**: called at every frame of the tracking
 
-You can find sample scripts at the `Examples` folder
+You can find sample scripts at the `examples` folder
 
 ```python
 import cv2
@@ -57,23 +66,20 @@ def tracking_callback():
 webcam = color_tracker.WebCamera(video_src=0)
 webcam.start_camera()
 
-kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
-
 tracker = color_tracker.ColorTracker(camera=webcam, max_nb_of_points=20, debug=True)
 tracker.set_tracking_callback(tracking_callback=tracking_callback)
 tracker.track(hsv_lower_value=(0, 100, 100),
               hsv_upper_value=(10, 255, 255),
-              min_contour_area=1000,
-              kernel=kernel)
+              min_contour_area=1000)
 
 webcam.release()
 ```
 
 ## Color Range Detection
 
-Just run this little script and you can get the necessary information for the color detection.
+With this tool you can easily determine the necessary *HSV* color values and kernel sizes for you app
 
-(You can find this also in the `Examples` folder)
+(You can find this also in the `examples` folder)
 
 ```python
 import color_tracker
@@ -86,13 +92,14 @@ lower, upper, kernel = detector.detect()
 
 print("Lower HSV color is: {0}".format(lower))
 print("Upper HSV color is: {0}".format(upper))
-print("Kernel is: {0}".format(kernel))
+print("Kernel shape is: {0}".format(kernel.shape))
 ```
 
 ## About
 
 Gábor Vecsei
 
+- [Website](https://gaborvecsei.com)
 - [Personal Blog](https://gaborvecsei.wordpress.com/)
 - [LinkedIn](https://www.linkedin.com/in/gaborvecsei)
 - [Twitter](https://twitter.com/GAwesomeBE)
