@@ -10,20 +10,15 @@ Easy to use color tracking package for object tracking based on colors :art:.
 
 <img  width="400" src="art/ball_tracking.gif" />
 
-## Setup
+## Install
 
-- Python3 is needed
-- OpenCV>=3 is needed
-- Install:
-    ```python
-    # After cloning the repo:
-    python3 setup.py install
+- Python3
+- OpenCV>=3
+- NumPy
 
-    # OR
-
-    # Install w/out cloning directly from Github
-    pip3 install git+https://github.com/gaborvecsei/Color-Tracker.git
-    ```
+```
+pip install color-tracker
+```
 
 ## Basic Usage
 
