@@ -24,15 +24,15 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='color_tracker',
-    version='0.1.0',
+    version='0.0.1',
     description='Color tracking',
     long_description=long_description,
     url='https://github.com/gaborvecsei',
     author='Gabor Vecsei',
     author_email='vecseigabor.x@gmail.com',
     license='MIT',
-    install_requires=['numpy',
-                      'opencv-python'],
+    install_requires=['numpy>=1.12',
+                      'opencv-python>=3.1'],
     classifiers=[
         'Intended Audience :: Developers',
         'Intended Audience :: Education',
