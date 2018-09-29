@@ -7,7 +7,7 @@ HSV_LOWER_VALUE = [155, 103, 82]
 HSV_UPPER_VALUE = [178, 255, 255]
 
 
-def tracking_callback():
+def tracking_callback(tracker):
     # Original captured frame
     frame = tracker.get_frame()
     # Frame where we drew the debugging points and bounding boxes

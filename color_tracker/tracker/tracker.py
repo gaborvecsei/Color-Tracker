@@ -1,7 +1,7 @@
 import math
 from collections import deque
 from types import FunctionType
-from typing import Union, List
+from typing import Union, List, Callable
 import numpy as np
 import cv2
 from color_tracker.utils.camera import Camera
@@ -48,9 +48,7 @@ class ColorTracker(object):
 
         self._selection_points = court_points
 
-    def set_tracking_callback(self, tracking_callback):
-        if not isinstance(tracking_callback, FunctionType):
-            raise Exception("tracking_callback is not a valid Function with type: FunctionType!")
+    def set_tracking_callback(self, tracking_callback: Callable[["ColorTracker"], None]):
         self._tracking_callback = tracking_callback
 
     def _create_tracker_points_list(self):
@@ -152,12 +150,7 @@ class ColorTracker(object):
                                                                 self._last_detected_object_bounding_boxes)
 
             if self._tracking_callback is not None:
-                try:
-                    self._tracking_callback()
-                except TypeError:
-                    import warnings
-                    warnings.warn(
-                        "Tracker callback function is not working because of wrong arguments! It takes zero arguments")
+                self._tracking_callback(self)
 
             if not self._is_running:
                 break
