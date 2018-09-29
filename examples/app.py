@@ -3,8 +3,8 @@ import cv2
 import color_tracker
 
 # You can determine these values with the HSVColorRangeDetector()
-HSV_LOWER_VALUE = (0, 100, 100)
-HSV_UPPER_VALUE = (10, 255, 255)
+HSV_LOWER_VALUE = [155, 103, 82]
+HSV_UPPER_VALUE = [178, 255, 255]
 
 
 def tracking_callback():
