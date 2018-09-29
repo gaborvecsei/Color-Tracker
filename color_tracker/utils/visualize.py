@@ -1,5 +1,17 @@
+import colorsys
+
 import cv2
+import numpy as np
 from color_tracker.utils.tracker_object import TrackedObject
+
+
+def random_colors(nb_of_colors: int, brightness: float = 1.0):
+    hsv = [(i / nb_of_colors, 1, brightness) for i in range(nb_of_colors)]
+    colors = np.array(list(map(lambda c: colorsys.hsv_to_rgb(*c), hsv)))
+    colors = colors * 255
+    colors = colors.astype(np.uint8)
+    np.random.shuffle(colors)
+    return colors
 
 
 def draw_tracker_points(points, debug_image):
