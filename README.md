@@ -4,7 +4,7 @@
 
 # Color Tracker
 
-Easy to use color tracking package for object tracking based on colors :art:.
+Easy to use color tracking package for object tracking based on colors :art:
 
 ## Samples
 
@@ -36,7 +36,7 @@ Check out the [examples folder](examples), or go straight to the [sample app](ex
 
 With this tool you can easily determine the necessary *HSV* color values and kernel sizes for you app
 
-You can fins [the code here](examples/color_range_detection.py)
+You can find [the code here](examples/color_range_detection.py)
 
 ## About
 
