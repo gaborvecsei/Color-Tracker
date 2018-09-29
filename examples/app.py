@@ -3,35 +3,25 @@ import cv2
 import color_tracker
 
 # You can determine these values with the HSVColorRangeDetector()
-HSV_LOWER_VALUE = (0, 100, 100)
-HSV_UPPER_VALUE = (10, 255, 255)
+HSV_LOWER_VALUE = [155, 103, 82]
+HSV_UPPER_VALUE = [178, 255, 255]
 
 
-def tracking_callback():
-    # Original captured frame
-    frame = tracker.get_frame()
-    # Frame where we drew the debugging points and bounding boxes
-    debug_frame = tracker.get_debug_image()
-    # The center of the captured object (if there is no object, this will be None)
-    object_center = tracker.get_last_object_center()
-
+def tracking_callback(tracker):
     # Visualizing the original frame and the debugger frame
-    cv2.imshow("original frame", frame)
-    cv2.imshow("debug frame", debug_frame)
+    cv2.imshow("original frame", tracker.frame)
+    cv2.imshow("debug frame", tracker.debug_frame)
 
     # Stop the script when we press ESC
     key = cv2.waitKey(1)
     if key == 27:
         tracker.stop_tracking()
 
-    # When we detected something, print out the center of the object
-    if object_center is not None:
-        print("Object center: {0}".format(object_center))
+    print("Object center: {0}".format(tracker.tracked_object.last_object_center))
 
 
 if __name__ == "__main__":
     # Init the webcamera
-
     # You can use the built-in camera class which is only a wrapper around the original
     # OpenCV VideoCapture object
     # Of course because of that you can use the original VideoCapture class like:
