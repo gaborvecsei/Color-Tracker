@@ -23,13 +23,7 @@ pip install color-tracker
 
 ## Basic Usage
 
-- Testing if it got installed
-    ```shell
-    >>> import color_tracker
-    >>> color_tracker.__version__
-    ```
-
-There is one **callback**:
+There is a tracking **callback**:
 
 - **tracking callback**: called at every frame of the tracking
 
@@ -40,7 +34,7 @@ import cv2
 import color_tracker
 
 
-def tracking_callback():
+def tracking_callback(tracker):
     frame = tracker.get_frame()
     debug_frame = tracker.get_debug_image()
     object_center = tracker.get_last_object_center()
