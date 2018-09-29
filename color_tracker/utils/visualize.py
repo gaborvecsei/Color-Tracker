@@ -1,4 +1,5 @@
 import cv2
+from color_tracker.utils.tracker_object import TrackedObject
 
 
 def draw_tracker_points(points, debug_image):
@@ -13,7 +14,11 @@ def draw_tracker_points(points, debug_image):
     return debug_image
 
 
-def draw_debug_things(debug_frame, points=None, contours=None, bboxes=None):
+def draw_debug_for_object(debug_frame, tracked_object: TrackedObject):
+    contours = tracked_object.last_object_contours
+    bboxes = tracked_object.last_bboxes
+    points = tracked_object.tracked_points
+
     if contours is not None:
         for c in contours:
             cv2.drawContours(debug_frame, [c], -1, (0, 255, 0), cv2.FILLED)

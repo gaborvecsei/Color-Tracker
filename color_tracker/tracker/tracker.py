@@ -4,6 +4,7 @@ from typing import Union, List, Callable
 
 import cv2
 import numpy as np
+from color_tracker.utils.tracker_object import TrackedObject
 
 from color_tracker.utils import helpers, visualize
 from color_tracker.utils.camera import Camera
@@ -20,21 +21,32 @@ class ColorTracker(object):
 
         super().__init__()
         self._camera = camera
-        self._tracker_points = None
         self._debug = debug
-        self._max_nb_of_points = max_nb_of_points
         self._selection_points = None
         self._is_running = False
         self._frame = None
         self._debug_frame = None
         self._frame_preprocessor = None
 
-        self._tracking_callback = None
-        self._last_detected_object_contours = None
-        self._last_detected_object_centers = None
-        self._last_detected_object_bounding_boxes = None
+        self._tracked_object = TrackedObject(0)
 
-        self._create_tracker_points_list()
+        self._tracking_callback = None
+
+    @property
+    def tracked_object(self) -> TrackedObject:
+        return self._tracked_object
+
+    @property
+    def frame(self):
+        return self._frame
+
+    @property
+    def debug_frame(self):
+        if self._debug:
+            return self._debug_frame
+        else:
+            warnings.warn("Debugging is not enabled so there is no debug frame")
+        return None
 
     def set_frame_preprocessor(self, preprocessor_func):
         self._frame_preprocessor = preprocessor_func
@@ -51,38 +63,14 @@ class ColorTracker(object):
     def set_tracking_callback(self, tracking_callback: Callable[["ColorTracker"], None]):
         self._tracking_callback = tracking_callback
 
-    def _create_tracker_points_list(self):
-        """
-        Initialize the tracker point list
-        """
-
-        if self._max_nb_of_points:
-            self._tracker_points = deque(maxlen=self._max_nb_of_points)
-        else:
-            self._tracker_points = deque()
-
-    def get_tracker_points(self):
-        """
-        :return (list): Returns the tracker points what were captured
-        """
-        return self._tracker_points
-
-    def _add_new_tracker_point(self, point, min_point_distance, max_point_distance):
+    def _add_new_tracker_point(self, point, min_point_distance: float, max_point_distance: float):
         try:
-            dst = helpers.calculate_distance(self._tracker_points[-1], point)
+            dst = helpers.calculate_distance(self._tracked_object.tracked_points[-1], point)
             if max_point_distance > dst > min_point_distance:
-                self._tracker_points.append(point)
+                self._tracked_object.add_point(point)
         except IndexError:
             # It happens only when the queue is empty and we need a starting point
-            self._tracker_points.append(point)
-
-    def clear_track_points(self):
-        """
-        Delete all tracker points
-        """
-
-        if len(self._tracker_points) > 0:
-            self._create_tracker_points_list()
+            self._tracked_object.add_point(point)
 
     def stop_tracking(self):
         """
@@ -136,42 +124,19 @@ class ColorTracker(object):
             contours = helpers.sort_contours_by_area(contours)
             object_centers = helpers.get_contour_centers(contours)
 
-            self._last_detected_object_contours = contours
-            self._last_detected_object_bounding_boxes = helpers.get_bbox_for_contours(contours)
-            self._last_detected_object_centers = object_centers
+            self._tracked_object._last_object_contours = contours
+            self._tracked_object._last_bounding_boxes = helpers.get_bbox_for_contours(contours)
+            self._tracked_object._last_object_centers = object_centers
 
             if len(object_centers) > 0:
                 self._add_new_tracker_point(object_centers[0], min_track_point_distance, np.inf)
 
             if self._debug:
-                self._debug_frame = visualize.draw_debug_things(self._frame.copy(),
-                                                                self._tracker_points,
-                                                                self._last_detected_object_contours,
-                                                                self._last_detected_object_bounding_boxes)
+                self._debug_frame = self._frame.copy()
+                self._debug_frame = visualize.draw_debug_for_object(self._debug_frame, self._tracked_object)
 
             if self._tracking_callback is not None:
                 self._tracking_callback(self)
 
             if not self._is_running:
                 break
-
-    def get_debug_image(self):
-        if self._debug:
-            return self._debug_frame
-        else:
-            warnings.warn("Debugging is not enabled so there is no debug frame")
-
-    def get_frame(self):
-        return self._frame
-
-    def get_last_object_centers(self):
-        return self._last_detected_object_centers
-
-    def get_object_bounding_boxes(self):
-        return self._last_detected_object_bounding_boxes
-
-    def get_last_object_center(self):
-        object_centers = self.get_last_object_centers()
-        if len(object_centers) > 0:
-            return object_centers[0]
-        return []
