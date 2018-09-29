@@ -1,12 +1,12 @@
-import math
+import warnings
 from collections import deque
-from types import FunctionType
 from typing import Union, List, Callable
-import numpy as np
+
 import cv2
-from color_tracker.utils.camera import Camera
+import numpy as np
 
 from color_tracker.utils import helpers, visualize
+from color_tracker.utils.camera import Camera
 
 
 class ColorTracker(object):
@@ -91,14 +91,14 @@ class ColorTracker(object):
 
         self._is_running = False
 
-    def _read_from_camera(self, camera, horizontal_flip: bool) -> np.ndarray:
+    @staticmethod
+    def _read_from_camera(camera, horizontal_flip: bool) -> np.ndarray:
         ret, frame = camera.read()
 
         if ret:
             if horizontal_flip:
                 frame = cv2.flip(frame, 1)
         else:
-            import warnings
             warnings.warn("There is no camera feed!")
 
         return frame
@@ -159,7 +159,6 @@ class ColorTracker(object):
         if self._debug:
             return self._debug_frame
         else:
-            import warnings
             warnings.warn("Debugging is not enabled so there is no debug frame")
 
     def get_frame(self):

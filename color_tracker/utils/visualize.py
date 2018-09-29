@@ -1,5 +1,5 @@
 import cv2
-import numpy as np
+
 
 def draw_tracker_points(points, debug_image):
     for i in range(1, len(points)):
