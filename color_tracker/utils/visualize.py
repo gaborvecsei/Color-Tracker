@@ -41,7 +41,10 @@ def draw_debug_for_object(debug_frame, tracked_object: TrackedObject):
             cv2.rectangle(debug_frame, (x1, y1), (x2, y2), (255, 255, 255), 1)
 
     if points is not None and len(points) > 0:
-        cv2.circle(debug_frame, tuple(points[0]), 3, (0, 0, 255), -1)
+        try:
+            cv2.circle(debug_frame, tuple(points[0].astype(int)), 3, (0, 0, 255), -1)
+        except:
+            pass
         draw_tracker_points(points, debug_frame)
 
     return debug_frame

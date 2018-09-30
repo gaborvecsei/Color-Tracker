@@ -17,7 +17,7 @@ def tracking_callback(tracker):
     if key == 27:
         tracker.stop_tracking()
 
-    print("Object center: {0}".format(tracker.tracked_object.last_object_center))
+    # print("Object center: {0}".format(tracker.tracked_object.last_object_center))
 
 
 if __name__ == "__main__":
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     # Start the actual tracking of the object
     tracker.track(hsv_lower_value=HSV_LOWER_VALUE,
                   hsv_upper_value=HSV_UPPER_VALUE,
-                  min_contour_area=1000,
+                  min_contour_area=3000,
                   kernel=kernel)
 
     webcam.release()
