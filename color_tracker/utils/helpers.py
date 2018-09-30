@@ -2,6 +2,9 @@ from typing import List, Tuple, Union
 
 import cv2
 import numpy as np
+from scipy import optimize
+
+from color_tracker.utils.tracker_object import TrackedObject
 
 
 def calculate_distance(pt1, pt2):
@@ -149,3 +152,31 @@ def get_bbox_for_contours(contours):
         x, y, w, h = cv2.boundingRect(contour)
         bboxes.append([x, y, x + w, y + h])
     return np.array(bboxes)
+
+
+def calculate_distance_mtx(tracked_objects: List[TrackedObject], points: np.ndarray) -> np.ndarray:
+    # (nb_tracked_objects, nb_current_detected_points)
+    cost_mtx = np.zeros((len(tracked_objects), len(points)))
+    for i, tracked_obj in enumerate(tracked_objects):
+        for j, point in enumerate(points):
+            diff = tracked_obj.last_point - point
+            distance = np.sqrt(diff[0] ** 2 + diff[1] ** 2)
+            cost_mtx[i][j] = distance
+    return cost_mtx
+
+
+def solve_assignment(cost_mtx: np.ndarray) -> List[int]:
+    nb_tracked_objects, nb_detected_obj_centers = cost_mtx.shape
+    assignment = [-1] * nb_tracked_objects
+    row_index, column_index = optimize.linear_sum_assignment(cost_mtx)
+    for i in range(len(row_index)):
+        assignment[row_index[i]] = column_index[i]
+    return assignment
+
+
+def remove_object_if_too_many_frames_skipped(tracked_objects: List[TrackedObject], assignment: List[int],
+                                             max_skipped_frames: int):
+    for i, tracked_obj in enumerate(tracked_objects):
+        if tracked_obj.skipped_frames > max_skipped_frames:
+            del tracked_objects[i]
+            del assignment[i]

@@ -7,7 +7,7 @@ HSV_LOWER_VALUE = [155, 103, 82]
 HSV_UPPER_VALUE = [178, 255, 255]
 
 
-def tracking_callback(tracker):
+def tracking_callback(tracker: color_tracker.ColorTracker):
     # Visualizing the original frame and the debugger frame
     cv2.imshow("original frame", tracker.frame)
     cv2.imshow("debug frame", tracker.debug_frame)
@@ -17,7 +17,8 @@ def tracking_callback(tracker):
     if key == 27:
         tracker.stop_tracking()
 
-    # print("Object center: {0}".format(tracker.tracked_objects.last_object_center))
+    for obj in tracker.tracked_objects:
+        print("Object {0} center {1}".format(obj.id, obj.last_point))
 
 
 if __name__ == "__main__":
@@ -34,7 +35,7 @@ if __name__ == "__main__":
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
 
     # Init the ColorTracker object
-    tracker = color_tracker.ColorTracker(camera=webcam, debug=True)
+    tracker = color_tracker.ColorTracker(camera=webcam, max_nb_of_objects=2, max_nb_of_points=20, debug=True)
 
     # Setting a callback which is called at every iteration
     tracker.set_tracking_callback(tracking_callback=tracking_callback)
@@ -42,7 +43,7 @@ if __name__ == "__main__":
     # Start the actual tracking of the object
     tracker.track(hsv_lower_value=HSV_LOWER_VALUE,
                   hsv_upper_value=HSV_UPPER_VALUE,
-                  min_contour_area=1000,
+                  min_contour_area=2500,
                   kernel=kernel)
 
     webcam.release()

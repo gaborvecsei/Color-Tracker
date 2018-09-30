@@ -3,7 +3,6 @@ from typing import Union, List, Callable
 
 import cv2
 import numpy as np
-from scipy import optimize
 
 from color_tracker.utils import helpers, visualize
 from color_tracker.utils.camera import Camera
@@ -11,7 +10,8 @@ from color_tracker.utils.tracker_object import TrackedObject
 
 
 class ColorTracker(object):
-    def __init__(self, camera: Union[Camera, cv2.VideoCapture], max_nb_of_objects: int = 3, debug: bool = True):
+    def __init__(self, camera: Union[Camera, cv2.VideoCapture], max_nb_of_objects: int = None,
+                 max_nb_of_points: int = None, debug: bool = True):
         """
         :param camera: Camera object which parent is a Camera object (like WebCamera)
         :param max_nb_of_points: Maxmimum number of points for storing. If it is set
@@ -23,7 +23,8 @@ class ColorTracker(object):
         self._camera = camera
         self._debug = debug
         self._max_nb_of_objects = max_nb_of_objects
-        self._debug_colors = visualize.random_colors(max_nb_of_objects)
+        self._max_nb_of_points = max_nb_of_points
+        self._debug_colors = visualize.random_colors(max_nb_of_objects + 1)
         self._selection_points = None
         self._is_running = False
         self._frame = None
@@ -85,11 +86,19 @@ class ColorTracker(object):
 
         return frame
 
+    def _init_new_tracked_object(self, obj_center):
+        tracked_obj = TrackedObject(self._tracked_object_id_count, self._max_nb_of_points)
+        tracked_obj.add_point(obj_center)
+        self._tracked_object_id_count += 1
+        self._tracked_objects.append(tracked_obj)
+
     def track(self, hsv_lower_value: Union[np.ndarray, List[int]], hsv_upper_value: Union[np.ndarray, List[int]],
               min_contour_area: Union[float, int], kernel: np.ndarray = None, horizontal_flip: bool = True,
-              max_track_point_distance: int = 100, max_skipped_frames: int = 20):
+              max_track_point_distance: int = 100, max_skipped_frames: int = 24):
         """
         With this we can start the tracking with the given parameters
+        :param max_skipped_frames: An object can be hidden for this many frames, after that it will be counted as a new
+        :param max_track_point_distance: maximum distance between tracking points
         :param horizontal_flip: Flip input image horizontally
         :param hsv_lower_value: lowest acceptable hsv values
         :param hsv_upper_value: highest acceptable hsv values
@@ -117,59 +126,38 @@ class ColorTracker(object):
             contours = helpers.sort_contours_by_area(contours)
             if self._max_nb_of_objects is not None and self._max_nb_of_objects > 0:
                 contours = contours[:self._max_nb_of_objects]
-            object_centers = helpers.get_contour_centers(contours)
             bboxes = helpers.get_bbox_for_contours(contours)
+            object_centers = helpers.get_contour_centers(contours)
 
-            # Hungarian method
-
-            # Init the list of tracked objects
+            # Init the list of tracked objects if it's empty
             if len(self._tracked_objects) == 0:
                 for obj_center in object_centers:
-                    tracked_obj = TrackedObject(self._tracked_object_id_count, 20)
-                    tracked_obj.add_point(obj_center)
-                    self._tracked_object_id_count += 1
-                    self._tracked_objects.append(tracked_obj)
+                    self._init_new_tracked_object(obj_center)
 
-            # Constructing cost matrix
-            cost_mtx = np.zeros(shape=(len(self._tracked_objects), len(object_centers)))
-            for i, tracked_obj in enumerate(self._tracked_objects):
-                for j, obj_center in enumerate(object_centers):
-                    diff = tracked_obj.last_point - obj_center
-                    distance = np.sqrt(diff[0] ** 2 + diff[1] ** 2)
-                    cost_mtx[i][j] = distance
+            # Constructing cost matrix (matrix with the distances from points to other points)
+            cost_mtx = helpers.calculate_distance_mtx(self._tracked_objects, object_centers)
 
-            assignment = [-1 for i in range(len(self._tracked_objects))]
-            # assignment = np.zeros(len(self._tracked_objects), dtype=np.int8).fill(-1)
-            row_index, column_index = optimize.linear_sum_assignment(cost_mtx)
-            for i in range(len(row_index)):
-                assignment[row_index[i]] = column_index[i]
+            # Solve assignment problem
+            assignment = helpers.solve_assignment(cost_mtx)
 
-            un_assigned_tracks = []
+            # Refine assignment list and objects's skipped frames
             for i in range(len(assignment)):
                 if assignment[i] != -1:
                     if cost_mtx[i][assignment[i]] > max_track_point_distance:
                         assignment[i] = -1
-                        un_assigned_tracks.append(i)
                 else:
                     self._tracked_objects[i].skipped_frames += 1
 
             # Remove tracked object if the object skipped to many frames, so it was not detected
-            for i, tracked_obj in enumerate(self._tracked_objects):
-                if tracked_obj.skipped_frames > max_skipped_frames:
-                    del self._tracked_objects[i]
-                    del assignment[i]
+            helpers.remove_object_if_too_many_frames_skipped(self._tracked_objects, assignment, max_skipped_frames)
 
-            # Check for completely new objects and initialize them
+            # Check for new objects and initialize them
             un_assigned_detections = [i for i in range(len(object_centers)) if i not in assignment]
             if len(un_assigned_detections) != 0:
-                for uad in un_assigned_detections:
-                    tracked_obj = TrackedObject(self._tracked_object_id_count, 20)
-                    tracked_obj.add_point(object_centers[uad])
-                    self._tracked_object_id_count += 1
-                    self._tracked_objects.append(tracked_obj)
+                for i in un_assigned_detections:
+                    self._init_new_tracked_object(object_centers[i])
 
-            # Refresh tracked objects because we detected those at the current frame
-            # (reset skipped frames counter and add new object center to the queue)
+            # Refresh tracked objects (reset "skipped frames" counter and add new object center to the queue)
             for i in range(len(assignment)):
                 if assignment[i] != -1:
                     self._tracked_objects[i].skipped_frames = 0
