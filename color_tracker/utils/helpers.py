@@ -126,12 +126,15 @@ def get_contour_centers(contours):
         return []
 
     # ((x, y), radius) = cv2.minEnclosingCircle(c)
-    centers = np.zeros((len(contours), 2), dtype=np.int16)
+    centers = []
     for i, c in enumerate(contours):
         M = cv2.moments(c)
-        center = (int(M["m10"] / M["m00"]), int(M["m01"] / M["m00"]))
-        centers[i] = center
-    return centers
+        # TODO
+        x = int(M["m10"] / M["m00"])
+        y = int(M["m01"] / M["m00"])
+        center = np.array([[x], [y]])
+        centers.append(center)
+    return np.array(centers)
 
 
 def find_object_contours(image: np.ndarray, hsv_lower_value: Union[Tuple[int], List[int]],
