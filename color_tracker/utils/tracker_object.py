@@ -4,7 +4,6 @@ import collections
 class TrackedObject:
     def __init__(self, id: int, max_nb_of_points: int = None):
         self._id = id
-        self._max_nb_of_points = max_nb_of_points
         self._tracked_points = collections.deque(maxlen=max_nb_of_points)
         self._skipped_frames = 0
 
