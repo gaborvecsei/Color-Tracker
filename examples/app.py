@@ -17,7 +17,7 @@ def tracking_callback(tracker):
     if key == 27:
         tracker.stop_tracking()
 
-    print("Object center: {0}".format(tracker.tracked_object.last_object_center))
+    # print("Object center: {0}".format(tracker.tracked_objects.last_object_center))
 
 
 if __name__ == "__main__":
@@ -34,7 +34,7 @@ if __name__ == "__main__":
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
 
     # Init the ColorTracker object
-    tracker = color_tracker.ColorTracker(camera=webcam, max_nb_of_points=20, debug=True)
+    tracker = color_tracker.ColorTracker(camera=webcam, debug=True)
 
     # Setting a callback which is called at every iteration
     tracker.set_tracking_callback(tracking_callback=tracking_callback)
