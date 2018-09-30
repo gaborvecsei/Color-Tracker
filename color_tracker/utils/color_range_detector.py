@@ -10,10 +10,7 @@ class HSVColorRangeDetector:
     Just a helper to determine what kind of lower and upper HSV values you need for the tracking
     """
 
-    def __init__(self, camera):
-        assert isinstance(camera, Camera), "camera parameter is not a Camera object!"
-        assert camera.is_running(), "camera is not running"
-
+    def __init__(self, camera: Camera):
         self._camera = camera
         self._trackbars = []
         self._main_window_name = "HSV color range detector"
@@ -57,16 +54,16 @@ class HSVColorRangeDetector:
         font_org = (5, 10)
 
         while True:
-            ret, self.frame = self._camera.read()
+            ret, frame = self._camera.read()
 
             if ret:
-                self.frame = cv2.flip(self.frame, 1)
+                frame = cv2.flip(frame, 1)
             else:
                 continue
 
-            img = self.frame.copy()
+            draw_image = frame.copy()
 
-            hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+            hsv_img = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             values = self._get_trackbar_values()
             h_min, s_min, v_min = values[:3]
             h_max, s_max, v_max = values[3:6]
@@ -81,10 +78,10 @@ class HSVColorRangeDetector:
 
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_x, kernel_y))
             thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=1)
-            preview = cv2.bitwise_and(img, img, mask=thresh)
+            preview = cv2.bitwise_and(draw_image, draw_image, mask=thresh)
 
             # Original image
-            img_display = helpers.resize_img(img, display_width, display_height)
+            img_display = helpers.resize_img(draw_image, display_width, display_height)
             cv2.putText(img_display, "Original image", font_org, cv2.FONT_HERSHEY_COMPLEX, font_scale, font_color)
 
             # Thresholded image
