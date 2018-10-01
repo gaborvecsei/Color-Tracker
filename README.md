@@ -9,8 +9,8 @@ Easy to use color tracking package for object tracking based on colors :art:
 ## Samples
 
 <p align="center">
-<img src="art/yellow_cruiser.gif" width="600" alt="yellow-cruiser"></a><br/>
-<img src="art/ball_tracking.gif" width="600" alt="yellow-cruiser"></a><br/>
+<img src="art/yellow_cruiser.gif" width="480" alt="yellow-cruiser"></a><br/>
+<img src="art/ball_tracking.gif" width="480" alt="ball-tracking"></a><br/>
 </p>
 
 ## Install
