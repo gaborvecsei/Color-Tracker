@@ -25,10 +25,24 @@ pip install color-tracker
 
 ## Basic Usage
 
-There is a tracking **callback**:
+``` python
+import cv2
+import color_tracker
 
-- **tracking callback**:
-  - called at every frame of the tracking
+
+def tracker_callback(t: color_tracker.ColorTracker):
+    cv2.imshow("debug", t.debug_frame)
+    key = cv2.waitKey(1)
+    if len(t.tracked_objects) > 0:
+        print(t.tracked_objects[0].id)
+
+
+with color_tracker.WebCamera() as cam:
+    tracker = color_tracker.ColorTracker(cam, max_nb_of_objects=1, max_nb_of_points=20, debug=True)
+    tracker.set_tracking_callback(tracker_callback)
+    tracker.track([155, 103, 82], [178, 255, 255], max_skipped_frames=24)
+
+```
 
 Check out the [examples folder](examples), or go straight to the [sample app](examples/app.py)
 
