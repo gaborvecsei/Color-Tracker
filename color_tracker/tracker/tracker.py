@@ -93,7 +93,7 @@ class ColorTracker(object):
         self._tracked_objects.append(tracked_obj)
 
     def track(self, hsv_lower_value: Union[np.ndarray, List[int]], hsv_upper_value: Union[np.ndarray, List[int]],
-              min_contour_area: Union[float, int], kernel: np.ndarray = None, horizontal_flip: bool = True,
+              min_contour_area: Union[float, int] = 0, kernel: np.ndarray = None, horizontal_flip: bool = True,
               max_track_point_distance: int = 100, max_skipped_frames: int = 24):
         """
         With this we can start the tracking with the given parameters
