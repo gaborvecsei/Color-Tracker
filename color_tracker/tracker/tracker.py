@@ -24,7 +24,7 @@ class ColorTracker(object):
         self._debug = debug
         self._max_nb_of_objects = max_nb_of_objects
         self._max_nb_of_points = max_nb_of_points
-        self._debug_colors = visualize.random_colors(max_nb_of_objects + 1)
+        self._debug_colors = visualize.random_colors(max_nb_of_objects)
         self._selection_points = None
         self._is_running = False
         self._frame = None
@@ -154,8 +154,9 @@ class ColorTracker(object):
             # Check for new objects and initialize them
             un_assigned_detections = [i for i in range(len(object_centers)) if i not in assignment]
             if len(un_assigned_detections) != 0:
-                for i in un_assigned_detections:
-                    self._init_new_tracked_object(object_centers[i])
+                if len(self._tracked_objects) < self._max_nb_of_objects:
+                    for i in un_assigned_detections:
+                        self._init_new_tracked_object(object_centers[i])
 
             # Refresh tracked objects (reset "skipped frames" counter and add new object center to the queue)
             for i in range(len(assignment)):
