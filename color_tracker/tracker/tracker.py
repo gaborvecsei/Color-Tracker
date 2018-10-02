@@ -10,17 +10,15 @@ from color_tracker.utils.tracker_object import TrackedObject
 
 
 class ColorTracker(object):
-    def __init__(self, camera: Union[Camera, cv2.VideoCapture], max_nb_of_objects: int = None,
+    def __init__(self, max_nb_of_objects: int = None,
                  max_nb_of_points: int = None, debug: bool = True):
         """
-        :param camera: Camera object which parent is a Camera object (like WebCamera)
         :param max_nb_of_points: Maxmimum number of points for storing. If it is set
         to None than it means there is no limit
         :param debug: When it's true than we can see the visualization of the captured points etc...
         """
 
         super().__init__()
-        self._camera = camera
         self._debug = debug
         self._max_nb_of_objects = max_nb_of_objects
         self._max_nb_of_points = max_nb_of_points
@@ -92,11 +90,13 @@ class ColorTracker(object):
         self._tracked_object_id_count += 1
         self._tracked_objects.append(tracked_obj)
 
-    def track(self, hsv_lower_value: Union[np.ndarray, List[int]], hsv_upper_value: Union[np.ndarray, List[int]],
-              min_contour_area: Union[float, int] = 0, kernel: np.ndarray = None, horizontal_flip: bool = True,
-              max_track_point_distance: int = 100, max_skipped_frames: int = 24):
+    def track(self, camera: Union[Camera, cv2.VideoCapture], hsv_lower_value: Union[np.ndarray, List[int]],
+              hsv_upper_value: Union[np.ndarray, List[int]], min_contour_area: Union[float, int] = 0,
+              kernel: np.ndarray = None, horizontal_flip: bool = True, max_track_point_distance: int = 100,
+              max_skipped_frames: int = 24):
         """
         With this we can start the tracking with the given parameters
+        :param camera: Camera object which parent is a Camera object (like WebCamera)
         :param max_skipped_frames: An object can be hidden for this many frames, after that it will be counted as a new
         :param max_track_point_distance: maximum distance between tracking points
         :param horizontal_flip: Flip input image horizontally
@@ -109,7 +109,7 @@ class ColorTracker(object):
         self._is_running = True
 
         while True:
-            self._frame = self._read_from_camera(self._camera, horizontal_flip)
+            self._frame = self._read_from_camera(camera, horizontal_flip)
 
             if self._frame_preprocessor is not None:
                 self._frame = self._frame_preprocessor(self._frame)

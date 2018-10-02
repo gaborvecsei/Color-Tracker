@@ -8,13 +8,16 @@ class WebCamera(Camera):
     Simple Webcamera
     """
 
-    def __init__(self, video_src=0):
+    def __init__(self, video_src=0, start: bool = False):
         """
         :param video_src (int): camera source code. It can be an integer or the name of the video file.
         """
 
         super().__init__()
         self._video_src = video_src
+
+        if start:
+            self.start_camera()
 
     def _init_camera(self):
         super()._init_camera()

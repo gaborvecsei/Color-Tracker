@@ -21,29 +21,28 @@ def tracking_callback(tracker: color_tracker.ColorTracker):
         print("Object {0} center {1}".format(obj.id, obj.last_point))
 
 
-if __name__ == "__main__":
-    # Init the webcamera
-    # You can use the built-in camera class which is only a wrapper around the original
-    # OpenCV VideoCapture object
-    # Of course because of that you can use the original VideoCapture class like:
-    # webcam = cv2.VideoCapture(0), (then you won't need to call the start_camera() function)
+# Init the webcamera
+# You can use the Camera class which is only a wrapper around the original
+# OpenCV VideoCapture object. Of course because of that you can use the original VideoCapture class like:
+# webcam = cv2.VideoCapture(0), (then you won't need to call the start_camera() function)
 
-    webcam = color_tracker.WebCamera(video_src=0)
-    webcam.start_camera()
+webcam = color_tracker.WebCamera(video_src=0)
+webcam.start_camera()
 
-    # Creating a kernel for the morphology operations
-    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
+# Creating a kernel for the morphology operations
+kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (11, 11))
 
-    # Init the ColorTracker object
-    tracker = color_tracker.ColorTracker(camera=webcam, max_nb_of_objects=2, max_nb_of_points=20, debug=True)
+# Init the ColorTracker object
+tracker = color_tracker.ColorTracker(max_nb_of_objects=5, max_nb_of_points=20, debug=True)
 
-    # Setting a callback which is called at every iteration
-    tracker.set_tracking_callback(tracking_callback=tracking_callback)
+# Setting a callback which is called at every iteration
+tracker.set_tracking_callback(tracking_callback=tracking_callback)
 
-    # Start the actual tracking of the object
-    tracker.track(hsv_lower_value=HSV_LOWER_VALUE,
-                  hsv_upper_value=HSV_UPPER_VALUE,
-                  min_contour_area=2500,
-                  kernel=kernel)
+# Start the actual tracking of the object
+tracker.track(webcam,
+              hsv_lower_value=HSV_LOWER_VALUE,
+              hsv_upper_value=HSV_UPPER_VALUE,
+              min_contour_area=2500,
+              kernel=kernel)
 
-    webcam.release()
+webcam.release()
