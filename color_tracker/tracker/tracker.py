@@ -80,7 +80,7 @@ class ColorTracker(object):
             if horizontal_flip:
                 frame = cv2.flip(frame, 1)
         else:
-            warnings.warn("There is no camera feed!")
+            raise ValueError("There is no camera feed")
 
         return frame
 

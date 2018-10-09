@@ -3,7 +3,7 @@
 *               Color Tracker
 *
 *              Gabor Vecsei
-* Email:       vecseigabor.x@gmail.com
+* Website:     gaborvecsei.com
 * Blog:        https://gaborvecsei.wordpress.com/
 * LinkedIn:    https://www.linkedin.com/in/gaborvecsei
 * Github:      https://github.com/gaborvecsei
@@ -18,13 +18,12 @@ from setuptools import setup, find_packages
 
 here = path.abspath(path.dirname(__file__))
 
-# Get the long description from the README file
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
     name='color_tracker',
-    version='0.0.3',
+    version='0.0.4',
     description='Easy to use color tracking package for object tracking based on colors',
     long_description=long_description,
     long_description_content_type='text/markdown',
