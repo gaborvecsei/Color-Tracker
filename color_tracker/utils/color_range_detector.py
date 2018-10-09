@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
-from color_tracker.utils.camera import Camera
+
 from color_tracker.utils import helpers
+from color_tracker.utils.camera import Camera
 
 
 class HSVColorRangeDetector:
@@ -9,10 +10,7 @@ class HSVColorRangeDetector:
     Just a helper to determine what kind of lower and upper HSV values you need for the tracking
     """
 
-    def __init__(self, camera):
-        assert isinstance(camera, Camera), "camera parameter is not a Camera object!"
-        assert camera.is_running(), "camera is not running"
-
+    def __init__(self, camera: Camera):
         self._camera = camera
         self._trackbars = []
         self._main_window_name = "HSV color range detector"
@@ -21,18 +19,21 @@ class HSVColorRangeDetector:
 
     def _init_trackbars(self):
         trackbars_window_name = "hsv settings"
-        cv2.namedWindow(trackbars_window_name)
+        cv2.namedWindow(trackbars_window_name, cv2.WINDOW_NORMAL)
 
+        # HSV Lower Bound
         h_min_trackbar = _Trackbar("H min", trackbars_window_name, 0, 255)
         s_min_trackbar = _Trackbar("S min", trackbars_window_name, 0, 255)
         v_min_trackbar = _Trackbar("V min", trackbars_window_name, 0, 255)
 
+        # HSV Upper Bound
         h_max_trackbar = _Trackbar("H max", trackbars_window_name, 255, 255)
         s_max_trackbar = _Trackbar("S max", trackbars_window_name, 255, 255)
-
-        kernel_x = _Trackbar("kernel x", trackbars_window_name, 0, 255)
-        kernel_y = _Trackbar("kernel y", trackbars_window_name, 0, 255)
         v_max_trackbar = _Trackbar("V max", trackbars_window_name, 255, 255)
+
+        # Kernel for morphology
+        kernel_x = _Trackbar("kernel x", trackbars_window_name, 0, 30)
+        kernel_y = _Trackbar("kernel y", trackbars_window_name, 0, 30)
 
         self._trackbars = [h_min_trackbar, s_min_trackbar, v_min_trackbar, h_max_trackbar, s_max_trackbar,
                            v_max_trackbar, kernel_x, kernel_y]
@@ -45,17 +46,24 @@ class HSVColorRangeDetector:
         return values
 
     def detect(self):
+        display_width = 360
+        display_height = 240
+
+        font_color = (0, 255, 255)
+        font_scale = 0.4
+        font_org = (5, 10)
+
         while True:
-            ret, self.frame = self._camera.read()
+            ret, frame = self._camera.read()
 
             if ret:
-                self.frame = cv2.flip(self.frame, 1)
+                frame = cv2.flip(frame, 1)
             else:
                 continue
 
-            img = self.frame.copy()
+            draw_image = frame.copy()
 
-            hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+            hsv_img = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
             values = self._get_trackbar_values()
             h_min, s_min, v_min = values[:3]
             h_max, s_max, v_max = values[3:6]
@@ -70,24 +78,20 @@ class HSVColorRangeDetector:
 
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (kernel_x, kernel_y))
             thresh = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=1)
-            preview = cv2.bitwise_and(img, img, mask=thresh)
-
-            display_width = 360
-            display_height = 240
-
-            font_color = (0, 255, 255)
-            font_scale = 0.4
-            font_org = (5, 10)
+            preview = cv2.bitwise_and(draw_image, draw_image, mask=thresh)
 
             # Original image
-            img_display = helpers.resize_img(img, display_width, display_height)
+            img_display = helpers.resize_img(draw_image, display_width, display_height)
             cv2.putText(img_display, "Original image", font_org, cv2.FONT_HERSHEY_COMPLEX, font_scale, font_color)
+
             # Thresholded image
             thresh_display = cv2.cvtColor(helpers.resize_img(thresh, display_width, display_height), cv2.COLOR_GRAY2BGR)
             cv2.putText(thresh_display, "Object map", font_org, cv2.FONT_HERSHEY_COMPLEX, font_scale, font_color)
+
             # Preview of masked objects
             preview_display = helpers.resize_img(preview, display_width, display_height)
             cv2.putText(preview_display, "Object preview", font_org, cv2.FONT_HERSHEY_COMPLEX, font_scale, font_color)
+
             # HSV image
             hsv_img_display = helpers.resize_img(hsv_img, display_width, display_height)
             cv2.putText(hsv_img_display, "HSV image", font_org, cv2.FONT_HERSHEY_COMPLEX, font_scale, font_color)

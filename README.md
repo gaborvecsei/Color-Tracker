@@ -23,20 +23,36 @@ Easy to use color tracking package for object tracking based on colors :art:
 pip install color-tracker
 ```
 
-## Basic Usage
+## Usage
 
-There is a tracking **callback**:
+- Basic usage:
 
-- **tracking callback**:
-  - called at every frame of the tracking
+``` python
+import cv2
+import color_tracker
 
-Check out the [examples folder](examples), or go straight to the [sample app](examples/app.py)
+
+def tracker_callback(t: color_tracker.ColorTracker):
+    cv2.imshow("debug", t.debug_frame)
+    cv2.waitKey(1)
+
+
+tracker = color_tracker.ColorTracker(max_nb_of_objects=1, max_nb_of_points=20, debug=True)
+tracker.set_tracking_callback(tracker_callback)
+
+with color_tracker.WebCamera() as cam:
+    # Define your custom Lower and Upper HSV values
+    tracker.track(cam, [155, 103, 82], [178, 255, 255], max_skipped_frames=24)
+```
+
+Check out the [examples folder](examples), or go straight to the [sample tracking app](examples/tracking.py) which is an extended
+version of the script above
 
 ## Color Range Detection
 
-With this tool you can easily determine the necessary *HSV* color values and kernel sizes for you app
+This is a tool which you can use to easily determine the necessary *HSV* color values and kernel sizes for you app
 
-You can find [the code here](examples/color_range_detection.py)
+You can find [the code here](examples/hsv_color_detector.py)
 
 ## About
 
