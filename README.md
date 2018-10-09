@@ -45,14 +45,14 @@ with color_tracker.WebCamera() as cam:
     tracker.track(cam, [155, 103, 82], [178, 255, 255], max_skipped_frames=24)
 ```
 
-Check out the [examples folder](examples), or go straight to the [sample app](examples/app.py) which is an extended
+Check out the [examples folder](examples), or go straight to the [sample tracking app](examples/tracking.py) which is an extended
 version of the script above
 
 ## Color Range Detection
 
 This is a tool which you can use to easily determine the necessary *HSV* color values and kernel sizes for you app
 
-You can find [the code here](examples/color_range_detection.py)
+You can find [the code here](examples/hsv_color_detector.py)
 
 ## About
 
