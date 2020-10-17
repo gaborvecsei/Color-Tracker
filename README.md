@@ -23,9 +23,26 @@ You will need the following packages:
 
 ## Object Tracker
 
-- Check out the **[examples folder](examples)**, or go straight to the **[sample tracking app](examples/tracking.py)** which is an extended version of the script below
+- Check out the **[examples folder](examples)**, or go straight to the **[sample tracking app](examples/tracking.py)** which is an extended version of the script below.
+This script tracks the red-ish objects, if you'd like to track another color, then start with the `hsv_color_detector.py` script 
     ``` python
-    python examples/tracking.py
+    $ python examples/tracking.py --help
+  
+  
+    usage: tracking.py [-h] [-low LOW LOW LOW] [-high HIGH HIGH HIGH]
+                   [-c CONTOUR_AREA] [-v]
+
+    optional arguments:
+      -h, --help            show this help message and exit
+      -low LOW LOW LOW, --low LOW LOW LOW
+                            Lower value for the HSV range. Default = 155, 103, 82
+      -high HIGH HIGH HIGH, --high HIGH HIGH HIGH
+                            Higher value for the HSV range. Default = 178, 255,
+                            255
+      -c CONTOUR_AREA, --contour-area CONTOUR_AREA
+                            Minimum object contour area. This controls how small
+                            objects should be detected. Default = 2500
+      -v, --verbose
     ```
 - Simple script:
 
