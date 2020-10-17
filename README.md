@@ -2,6 +2,8 @@
 [![PyPI version](https://badge.fury.io/py/color-tracker.svg)](https://badge.fury.io/py/color-tracker)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3](https://img.shields.io/badge/Python-3-brightgreen.svg)](https://www.python.org/downloads/)
+[![DOI](https://zenodo.org/badge/101786270.svg)](https://zenodo.org/badge/latestdoi/101786270)
+
 
 # Color Tracker - Multi Object Tracker
 
@@ -70,3 +72,14 @@ Gábor Vecsei
 - [LinkedIn](https://www.linkedin.com/in/gaborvecsei)
 - [Twitter](https://twitter.com/GAwesomeBE)
 - [Github](https://github.com/gaborvecsei)
+
+```
+@misc{vecsei2018colortracker,
+      doi = {10.5281/ZENODO.4097717},
+      howpublished={\url{https://github.com/gaborvecsei/Color-Tracker}},
+      author = {Gabor Vecsei},
+      title = {Color Tracker - Multi Object Tracker},
+      year = {2018},
+      copyright = {MIT License}
+}
+```
