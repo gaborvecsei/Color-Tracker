@@ -17,9 +17,9 @@ Easy to use **multi object tracking** package based on colors :art:
 pip install color-tracker
 ```
 
-You will need the following packages:
-- OpenCV3 (`pip install opencv-python`)
-- Numpy (`pip install numpy`)
+```
+pip install git+https://github.com/gaborvecsei/Color-Tracker.git
+```
 
 ## Object Tracker
 
