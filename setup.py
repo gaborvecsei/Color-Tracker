@@ -3,8 +3,8 @@
 *               Color Tracker
 *
 *              Gabor Vecsei
-* Website:     gaborvecsei.com
-* Blog:        https://gaborvecsei.wordpress.com/
+* Website:     https://gaborvecsei.com
+* Blog:        https://gaborvecsei.com
 * LinkedIn:    https://www.linkedin.com/in/gaborvecsei
 * Github:      https://github.com/gaborvecsei
 *

@@ -85,7 +85,7 @@ If you feel like it is a **useful package** and it **saved you time and effor**,
 Gábor Vecsei
 
 - [Website](https://gaborvecsei.com)
-- [Personal Blog](https://gaborvecsei.wordpress.com/)
+- [Personal Blog](https://gaborvecsei.com)
 - [LinkedIn](https://www.linkedin.com/in/gaborvecsei)
 - [Twitter](https://twitter.com/GAwesomeBE)
 - [Github](https://github.com/gaborvecsei)
