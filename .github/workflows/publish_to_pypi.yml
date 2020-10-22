@@ -1,0 +1,22 @@
+name: Publish Color-Tracker to PyPI when a release is created
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-package-and-publish:
+    name: Publish Color-Tracker to PyPI
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@master
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+      - name: Build the package
+        run: python setup.py sdist bdist_wheel
+      - name: Publish distribution to PyPI
+        uses: pypa/gh-action-pypi-publish@master
+        with:
+          password: ${{ secrets.pypi_password }}
